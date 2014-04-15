@@ -24,11 +24,16 @@ class TestClass(QtGui.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.scrollEvent = ScrollAreaEventFilter(self)
+        self.ui.scrollArea.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        self.horzScrollbarValue = 0
+
         self.basefolder = basefolder
         self.filelist = self.getListOfWavefiles(self.basefolder)
         self.fileidx = 0
 
         self.bgImg = None
+        self.cropRect = None
         self.setupGraphicsView()
 
         self.scrollLabel = QtGui.QLabel()
@@ -62,8 +67,6 @@ class TestClass(QtGui.QMainWindow):
         self.overviewScene.setSceneRect(self.sceneRect)
 
         self.ui.gw_overview.setScene(self.overviewScene)
-        # self.ui.gw_overview.ensureVisible(self.overviewScene.sceneRect())
-        # self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
 
 
     def loadNext(self):
@@ -125,6 +128,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.bgImg = QtGui.QGraphicsPixmapItem(px)
         self.overviewScene.addItem(self.bgImg)
+        self.bgImg.setZValue(-100)
         self.bgImg.setPos(0,0)         
         self.ui.gw_overview.ensureVisible(self.bgImg)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
@@ -137,13 +141,42 @@ class TestClass(QtGui.QMainWindow):
     def debug(self):
         print self.ui.scrollArea.horizontalScrollBar().value()
         print self.ui.scrollArea.horizontalScrollBar().pageStep()
-
+        self.getZoomBoundingBox()
 
     def getZoomBoundingBox(self):
         left = self.ui.scrollArea.horizontalScrollBar().value()
         areaWidth = self.ui.scrollArea.width()
-        right = left + float(areaWidth)
+        right = float(areaWidth)
         print "left:", left, "right:", right
+        self.addRectToOverview(left, right)
+
+    def addRectToOverview(self, left, right):
+        rect = QtCore.QRectF(left, 0, right, 350)
+        if not self.cropRect:
+            penCol = QtGui.QColor()
+            penCol.setRgb(0, 0, 0)
+            self.cropRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+        else:
+            self.cropRect.setRect(rect)
+
+    def scrollbarSlideEvent(self):
+        if self.horzScrollbarValue != \
+        self.ui.scrollArea.horizontalScrollBar().value():
+            self.horzScrollbarValue = \
+                self.ui.scrollArea.horizontalScrollBar().value()
+
+            self.getZoomBoundingBox()
+
+
+class ScrollAreaEventFilter(QtCore.QObject):
+    def __init__(self, parent):
+        QtCore.QObject.__init__(self)
+        self.parent = parent
+        
+    def eventFilter(self, obj, event):
+        if type(event) == QtCore.QDynamicPropertyChangeEvent:
+            self.parent.scrollbarSlideEvent()
+
 
 
 if __name__ == "__main__":    
