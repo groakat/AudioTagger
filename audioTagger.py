@@ -19,7 +19,7 @@ basefolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Am
 class TestClass(QtGui.QMainWindow):
     
     def __init__(self, basefolder):      
-        QtGui.QMainWindow.__init__(self)
+        super(TestClass, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -28,6 +28,9 @@ class TestClass(QtGui.QMainWindow):
         self.filelist = self.getListOfWavefiles(self.basefolder)
         self.fileidx = 0
 
+        self.bgImg = None
+        self.setupGraphicsView()
+
         self.scrollLabel = QtGui.QLabel()
 
         self.configureElements()
@@ -35,9 +38,8 @@ class TestClass(QtGui.QMainWindow):
         self.show()
 
     def resizeEvent(self, event):
-        super(TestClass, self).resizeEvent(event)
-        # self.ui.label.setFixedWidth(self.ui.horizontalLayout_2.width())
-        # self.ui.label.adjustSize()
+        super(TestClass, self).resizeEvent(event)        
+        self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
     def connectElements(self):
         self.ui.pb_next.clicked.connect(self.loadNext)
@@ -45,9 +47,23 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_debug.clicked.connect(self.debug)
 
     def configureElements(self):
-        self.ui.label.setScaledContents(True)
         self.ui.scrollArea.setWidget(self.scrollLabel)
-        self.scrollLabel.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored )
+        self.scrollLabel.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
+
+    def setupGraphicsView(self):
+        w = 6000
+        h = 350
+        self.sceneRect = QtCore.QRectF(0, 0, w,h)
+          
+        self.ui.gw_overview.setFrameStyle(QtGui.QFrame.NoFrame)
+        self.overviewScene = QtGui.QGraphicsScene(self)
+
+        self.overviewScene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
+        self.overviewScene.setSceneRect(self.sceneRect)
+
+        self.ui.gw_overview.setScene(self.overviewScene)
+        # self.ui.gw_overview.ensureVisible(self.overviewScene.sceneRect())
+        # self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect(), QtCore.Qt.KeepAspectRatio)
 
 
     def loadNext(self):
@@ -104,8 +120,15 @@ class TestClass(QtGui.QMainWindow):
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)
         px = QtGui.QPixmap().fromImage(qi)     
-        self.ui.label.setPixmap(px)
-        self.ui.label.setScaledContents(True)
+        if self.bgImg:
+            self.overviewScene.removeItem(self.bgImg)
+
+        self.bgImg = QtGui.QGraphicsPixmapItem(px)
+        self.overviewScene.addItem(self.bgImg)
+        self.bgImg.setPos(0,0)         
+        self.ui.gw_overview.ensureVisible(self.bgImg)
+        self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+
 
         self.scrollLabel.setPixmap(px)
         self.scrollLabel.adjustSize()

@@ -23,15 +23,12 @@
          <enum>QLayout::SetMinimumSize</enum>
         </property>
         <item>
-         <widget class="QLabel" name="label">
+         <widget class="QGraphicsView" name="gw_overview">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
           </property>
          </widget>
         </item>
@@ -60,6 +57,7 @@
            <height>176</height>
           </rect>
          </property>
+         <zorder></zorder>
         </widget>
        </widget>
       </item>
