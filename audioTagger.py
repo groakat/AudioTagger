@@ -218,10 +218,14 @@ class TestClass(QtGui.QMainWindow):
 
             self.getZoomBoundingBox()
 
-    def openSceneRectangle(self, x, y):
-        if self.isDeletingRects:
-            print self.overviewScene.itemAt(x, y)
+    def clickInScene(self, x, y):
+        if not self.ui.cb_create.checkState():
+            self.mouseEventFilter.isRectangleOpen = False
+            self.toogleToItem( self.overviewScene.itemAt(x, y))
+        else:
+            self.openSceneRectangle(x, y)
 
+    def openSceneRectangle(self, x, y):
         rect = QtCore.QRectF(x, y, 0, 0)
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
@@ -289,8 +293,9 @@ class TestClass(QtGui.QMainWindow):
                 penCol = QtGui.QColor()
                 penCol.setRgb(0, 0, 200)
 
-            self.labelRects += \
-                [self.overviewScene.addRect(rect, QtGui.QPen(penCol))]
+            labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+            self.labelRects += [labelRect]
+            self.rectClasses[labelRect] = labelTypes.index(c)
 
 
     def saveSceneRects(self, fileAppendix="-sceneRect"):
@@ -331,16 +336,20 @@ class TestClass(QtGui.QMainWindow):
 
     def toggleLabels(self):
         if self.activeLabel is None:
-            self.activeLabel = 0
+            activeLabel = 0
         else:
-            print "else"
-            # penCol = QtGui.QColor()
-            # penCol.setRgb(0, 0, 200)
+            activeLabel = (self.activeLabel + 1) % len(self.labelRects)
+
+        self.toogleTo(activeLabel)
+
+
+    def toogleTo(self, activeLabel):
+        if self.activeLabel is not None:
             penCol = labelColours[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
             self.labelRects[self.activeLabel].setPen(pen)
 
-            self.activeLabel = (self.activeLabel + 1) % len(self.labelRects)
+        self.activeLabel = activeLabel
 
         print "toggling to", self.activeLabel, len(self.labelRects)
         penCol = QtGui.QColor()
@@ -349,6 +358,11 @@ class TestClass(QtGui.QMainWindow):
         self.labelRects[self.activeLabel].setPen(pen)
 
         self.scrollView.centerOn(self.labelRects[self.activeLabel])
+
+
+    def toogleToItem(self, item):
+        itemIdx = self.labelRects.index(item)
+        self.toogleTo(itemIdx)
 
     def deteleActiveLabel(self):
         labelRect = self.labelRects.pop(self.activeLabel)
@@ -407,7 +421,7 @@ class MouseFilterObj(QtCore.QObject):
             self.isRectangleOpen = not self.isRectangleOpen
 
             if self.isRectangleOpen:
-                self.parent.openSceneRectangle(int(event.scenePos().x()), 
+                self.parent.clickInScene(int(event.scenePos().x()), 
                                           int( event.scenePos().y()))
             else:
                 self.parent.closeSceneRectangle()

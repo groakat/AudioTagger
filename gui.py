@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Wed Apr 16 16:45:44 2014
+# Created: Wed Apr 16 17:44:00 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,6 +66,10 @@ class Ui_MainWindow(object):
         self.pb_debug = QtGui.QPushButton(self.centralwidget)
         self.pb_debug.setObjectName("pb_debug")
         self.horizontalLayout.addWidget(self.pb_debug)
+        self.cb_create = QtGui.QCheckBox(self.centralwidget)
+        self.cb_create.setChecked(True)
+        self.cb_create.setObjectName("cb_create")
+        self.horizontalLayout.addWidget(self.cb_create)
         self.cb_labelType = QtGui.QComboBox(self.centralwidget)
         self.cb_labelType.setObjectName("cb_labelType")
         self.horizontalLayout.addWidget(self.cb_labelType)
@@ -92,4 +96,5 @@ class Ui_MainWindow(object):
         self.pb_toggle.setText(QtGui.QApplication.translate("MainWindow", "toggle", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_delete.setText(QtGui.QApplication.translate("MainWindow", "delete", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_debug.setText(QtGui.QApplication.translate("MainWindow", "debug", None, QtGui.QApplication.UnicodeUTF8))
+        self.cb_create.setText(QtGui.QApplication.translate("MainWindow", "create", None, QtGui.QApplication.UnicodeUTF8))
 
