@@ -17,6 +17,24 @@ from AudioTagger.gui import Ui_MainWindow
 audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
 labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
 
+labelTypes = ["bat",
+              "bird",
+              "plane"]
+
+labelColours = []
+
+penCol = QtGui.QColor()
+penCol.setRgb(0, 0, 200)
+labelColours += [penCol]
+
+penCol = QtGui.QColor()
+penCol.setRgb(200, 0, 200)
+labelColours += [penCol]
+
+penCol = QtGui.QColor()
+penCol.setRgb(0, 200, 200)
+labelColours += [penCol]
+
 
 class TestClass(QtGui.QMainWindow):
     
@@ -48,6 +66,7 @@ class TestClass(QtGui.QMainWindow):
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
 
         self.labelRects = []
+        self.rectClasses = dict()
         self.labelRect = None
         self.configureElements()
         self.connectElements()
@@ -69,6 +88,7 @@ class TestClass(QtGui.QMainWindow):
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
         self.scrollView.setFixedHeight(self.specHeight + 30)
+        self.ui.cb_labelType.addItems(labelTypes)
 
     def setupGraphicsView(self):
         w = 6000
@@ -201,9 +221,10 @@ class TestClass(QtGui.QMainWindow):
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
 
-        penCol = QtGui.QColor()
-        penCol.setRgb(0, 0, 200)
+        penCol = labelColours[self.ui.cb_labelType.currentIndex()]
         self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+        self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentIndex()
+
         print self.labelRect
 
     def closeSceneRectangle(self):
@@ -235,22 +256,34 @@ class TestClass(QtGui.QMainWindow):
         self.contentChanged = True
 
     def convertLabelRectsToRects(self):
-        rects = []
+        labels = []
         for labelRect in self.labelRects:
             r = labelRect.rect()
             rect = [r.x(), r.y(), r.width(), r.height()]
-            rects += [rect]
+            c = labelTypes[self.rectClasses[labelRect]]
+            labels += [[rect, c]]
 
-        return rects
+        return labels
 
-    def convertRectsToLabelRects(self, rects):
+    def convertRectsToLabelRects(self, labels):
         self.clearSceneRects()
 
-        for r in rects:
+        for r, c in labels:
             rect = QtCore.QRectF(*r)
 
-            penCol = QtGui.QColor()
-            penCol.setRgb(0, 0, 200)
+            try:
+                classIdx = labelTypes.index(c)
+                penCol = labelColours[classIdx]
+            except ValueError:                
+                msgBox = QtGui.QMessageBox()
+                msgBox.setText("File contained undefined class")
+                msgBox.setInformativeText("Class <b>{c}</b> found in saved data. No colour for this class defined. Using standard color. Define colour in top of the source code to fix this error message".format(c=c))
+                msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+                ret = msgBox.exec_()
+
+                penCol = QtGui.QColor()
+                penCol.setRgb(0, 0, 200)
+
             self.labelRects += \
                 [self.overviewScene.addRect(rect, QtGui.QPen(penCol))]
 
@@ -296,8 +329,9 @@ class TestClass(QtGui.QMainWindow):
             self.activeLabel = 0
         else:
             print "else"
-            penCol = QtGui.QColor()
-            penCol.setRgb(0, 0, 200)
+            # penCol = QtGui.QColor()
+            # penCol.setRgb(0, 0, 200)
+            penCol = labelColours[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
             self.labelRects[self.activeLabel].setPen(pen)
 

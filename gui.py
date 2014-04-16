@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Wed Apr 16 15:56:49 2014
+# Created: Wed Apr 16 16:45:44 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,6 +66,9 @@ class Ui_MainWindow(object):
         self.pb_debug = QtGui.QPushButton(self.centralwidget)
         self.pb_debug.setObjectName("pb_debug")
         self.horizontalLayout.addWidget(self.pb_debug)
+        self.cb_labelType = QtGui.QComboBox(self.centralwidget)
+        self.cb_labelType.setObjectName("cb_labelType")
+        self.horizontalLayout.addWidget(self.cb_labelType)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)

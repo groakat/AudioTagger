@@ -102,6 +102,9 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QComboBox" name="cb_labelType"/>
+        </item>
        </layout>
       </item>
      </layout>
