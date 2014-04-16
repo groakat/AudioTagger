@@ -25,6 +25,8 @@ class TestClass(QtGui.QMainWindow):
         self.ui.setupUi(self)
 
         self.scrollEvent = ScrollAreaEventFilter(self)
+        self.mouseEventFilter = MouseFilterObj(self)
+
         self.horzScrollbarValue = 0
 
         self.basefolder = basefolder
@@ -35,11 +37,12 @@ class TestClass(QtGui.QMainWindow):
 
         self.bgImg = None
         self.cropRect = None
-        self.scrollView = self.ui.scrollView#QtGui.QGraphicsView()
+        self.scrollView = self.ui.scrollView
         self.setupGraphicsView()
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
 
+        self.labelRect = None
         self.configureElements()
         self.connectElements()
         self.show()
@@ -54,7 +57,6 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_debug.clicked.connect(self.debug)
 
     def configureElements(self):
-        # self.ui.scrollArea.setWidget(self.scrollView)
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
         self.scrollView.setFixedHeight(self.specHeight + 30)
 
@@ -71,6 +73,9 @@ class TestClass(QtGui.QMainWindow):
 
         self.ui.gw_overview.setScene(self.overviewScene)
         self.scrollView.setScene(self.overviewScene)
+        self.scrollView.setMouseTracking(True)
+
+        self.overviewScene.installEventFilter(self.mouseEventFilter)
 
 
     def loadNext(self):
@@ -122,7 +127,7 @@ class TestClass(QtGui.QMainWindow):
         return X
 
     def updateLabelWithSpectrogram(self, spec):
-        clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)
+        clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)#T change color, alter plt.cm.jet to plt.cm.#alternative code#
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
@@ -141,13 +146,6 @@ class TestClass(QtGui.QMainWindow):
         self.ui.gw_overview.ensureVisible(self.bgImg)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
-        # self.scrollView.ensureVisible(0, 0, 100, 500)
-
-
-        # self.scrollLabel.setPixmap(px)
-        # self.scrollLabel.adjustSize()
-        # self.scrollLabel.setScaledContents(True)
-
     def debug(self):
         print self.scrollView.horizontalScrollBar().value()
         print self.scrollView.horizontalScrollBar().pageStep()
@@ -157,7 +155,6 @@ class TestClass(QtGui.QMainWindow):
         left = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
         right = float(areaWidth)
-        print "left:", left, "right:", right
         self.addRectToOverview(left, right)
 
     def addRectToOverview(self, left, right):
@@ -177,6 +174,30 @@ class TestClass(QtGui.QMainWindow):
 
             self.getZoomBoundingBox()
 
+    def openSceneRectangle(self, x, y):
+        rect = QtCore.QRectF(x, y, 0, 0)
+        if self.labelRect:
+            self.overviewScene.removeItem(self.labelRect)
+
+        penCol = QtGui.QColor()
+        penCol.setRgb(0, 0, 200)
+        self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+        print self.labelRect
+
+    def closeSceneRectangle(self):
+        print "closing rectangle"
+
+    def resizeSceneRectangle(self, x, y):
+        if self.labelRect:
+            orgX = self.labelRect.rect().x()
+            orgY = self.labelRect.rect().y()
+            w = x - orgX
+            h = y - orgY
+            self.labelRect.setRect(orgX,
+                                   orgY, w, h)
+            print self.labelRect.rect()
+
+
 
 class ScrollAreaEventFilter(QtCore.QObject):
     def __init__(self, parent):
@@ -187,6 +208,39 @@ class ScrollAreaEventFilter(QtCore.QObject):
         if type(event) == QtCore.QDynamicPropertyChangeEvent:
             self.parent.scrollbarSlideEvent()
 
+
+class MouseFilterObj(QtCore.QObject):
+    def __init__(self, parent):
+        QtCore.QObject.__init__(self)
+        self.parent = parent
+        self.isRectangleOpen = False
+        
+    def eventFilter(self, obj, event):
+        # print event.type()
+
+        if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseRelease:
+            self.isRectangleOpen = not self.isRectangleOpen
+
+            if self.isRectangleOpen:
+                self.parent.openSceneRectangle(int(event.scenePos().x()), 
+                                          int( event.scenePos().y()))
+            else:
+                self.parent.closeSceneRectangle()
+
+        if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseMove:
+            if self.isRectangleOpen:
+                if (event.type() == QtCore.QEvent.GraphicsSceneMouseMove):
+                    self.parent.resizeSceneRectangle(int(event.scenePos().x()), 
+                                                    int( event.scenePos().y()))
+
+            
+        # if (event.type() == QtCore.QEvent.Leave):
+        #     self.parent.setCropCenter(None, None, increment=self.increment)
+            
+        # if (event.type() == QtCore.QEvent.GraphicsSceneWheel):
+        #     self.increment -= event.delta()
+            
+        return False
 
 
 
