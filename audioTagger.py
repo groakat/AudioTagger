@@ -151,7 +151,7 @@ class TestClass(QtGui.QMainWindow):
         self.addRectToOverview(left, right)
 
     def addRectToOverview(self, left, right):
-        rect = QtCore.QRectF(left, 0, right, 350)
+        rect = QtCore.QRectF(left, 0, right, 360)
         if not self.cropRect:
             penCol = QtGui.QColor()
             penCol.setRgb(0, 0, 0)
