@@ -68,6 +68,34 @@
          </widget>
         </item>
         <item>
+         <widget class="QPushButton" name="pb_save">
+          <property name="text">
+           <string>save</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_load">
+          <property name="text">
+           <string>load</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_toggle">
+          <property name="text">
+           <string>toggle</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pb_delete">
+          <property name="text">
+           <string>delete</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="pb_debug">
           <property name="text">
            <string>debug</string>

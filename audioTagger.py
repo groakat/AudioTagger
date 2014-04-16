@@ -5,6 +5,7 @@ import scipy.io.wavfile
 import scipy.misc as spmisc
 import numpy as np
 import pylab as plt
+import json
 
 import qimage2ndarray as qim2np
 
@@ -13,12 +14,13 @@ from PySide import QtCore, QtGui
 from AudioTagger.gui import Ui_MainWindow
 
 
-basefolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
 
 
 class TestClass(QtGui.QMainWindow):
     
-    def __init__(self, basefolder):      
+    def __init__(self, basefolder, labelfolder):      
         super(TestClass, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
@@ -30,9 +32,11 @@ class TestClass(QtGui.QMainWindow):
         self.horzScrollbarValue = 0
 
         self.basefolder = basefolder
+        self.labelfolder = labelfolder
         self.filelist = self.getListOfWavefiles(self.basefolder)
         self.fileidx = 0
 
+        self.activeLabel = None
         self.specHeight = 360
 
         self.bgImg = None
@@ -42,6 +46,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
 
+        self.labelRects = []
         self.labelRect = None
         self.configureElements()
         self.connectElements()
@@ -55,6 +60,10 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_next.clicked.connect(self.loadNext)
         self.ui.pb_prev.clicked.connect(self.loadPrev)
         self.ui.pb_debug.clicked.connect(self.debug)
+        self.ui.pb_save.clicked.connect(self.saveSceneRects)
+        self.ui.pb_load.clicked.connect(self.loadSceneRects)
+        self.ui.pb_toggle.clicked.connect(self.toggleLabels)
+        self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -79,14 +88,20 @@ class TestClass(QtGui.QMainWindow):
 
 
     def loadNext(self):
+        self.clearSceneRects()
         if self.fileidx < len(self.filelist) - 1:
             self.fileidx += 1
             self.updateSpecLabel()
 
+        self.loadSceneRects()
+
     def loadPrev(self): 
+        self.clearSceneRects()
         if self.fileidx > 1:
             self.fileidx -= 1
             self.updateSpecLabel()
+
+        self.loadSceneRects()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
@@ -147,9 +162,7 @@ class TestClass(QtGui.QMainWindow):
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
     def debug(self):
-        print self.scrollView.horizontalScrollBar().value()
-        print self.scrollView.horizontalScrollBar().pageStep()
-        self.getZoomBoundingBox()
+        self.saveSceneRects()
 
     def getZoomBoundingBox(self):
         left = self.scrollView.horizontalScrollBar().value()
@@ -185,6 +198,8 @@ class TestClass(QtGui.QMainWindow):
         print self.labelRect
 
     def closeSceneRectangle(self):
+        self.labelRects.append(self.labelRect)
+        self.labelRect = None
         print "closing rectangle"
 
     def resizeSceneRectangle(self, x, y):
@@ -197,6 +212,98 @@ class TestClass(QtGui.QMainWindow):
                                    orgY, w, h)
             print self.labelRect.rect()
 
+    def clearSceneRects(self):        
+        if self.labelRect:
+            self.overviewScene.removeItem(self.labelRect)
+
+        self.mouseEventFilter.isRectangleOpen = False
+
+        for labelRect in self.labelRects:
+            self.overviewScene.removeItem(labelRect)
+
+        self.labelRects = []
+
+    def convertLabelRectsToRects(self):
+        rects = []
+        for labelRect in self.labelRects:
+            r = labelRect.rect()
+            rect = [r.x(), r.y(), r.width(), r.height()]
+            rects += [rect]
+
+        return rects
+
+    def convertRectsToLabelRects(self, rects):
+        self.clearSceneRects()
+
+        for r in rects:
+            rect = QtCore.QRectF(*r)
+
+            penCol = QtGui.QColor()
+            penCol.setRgb(0, 0, 200)
+            self.labelRects += \
+                [self.overviewScene.addRect(rect, QtGui.QPen(penCol))]
+
+
+    def saveSceneRects(self, fileAppendix="-sceneRect"):
+        filename = self.createLabelFilename(fileAppendix)
+        
+        if not os.path.exists(self.labelfolder):
+            os.makedirs(self.labelfolder)
+
+        with open(filename, "w") as f:
+            rects = self.convertLabelRectsToRects()
+            json.dump(rects, f)
+
+    def loadSceneRects(self, fileAppendix="-sceneRect"):
+        filename = self.createLabelFilename(fileAppendix)
+
+        if os.path.exists(filename):
+            with open(filename, "r") as f:
+                rects = json.load(f)
+                self.convertRectsToLabelRects(rects)
+
+
+    def createLabelFilename(self, fileAppendix="-sceneRect"):        
+        currentWavFilename = self.filelist[self.fileidx]
+        if currentWavFilename.endswith('.wav'):
+            filename = currentWavFilename[:-4]
+        else:
+            raise RuntimeError("Program only works for wav files")
+
+        filename += fileAppendix + ".json"
+        filename = os.path.basename(filename)
+        filename = os.path.join(self.labelfolder, filename)
+
+        return filename
+
+
+    def toggleLabels(self):
+        if self.activeLabel is None:
+            self.activeLabel = 0
+        else:
+            print "else"
+            penCol = QtGui.QColor()
+            penCol.setRgb(0, 0, 200)
+            pen = QtGui.QPen(penCol)
+            self.labelRects[self.activeLabel].setPen(pen)
+
+            self.activeLabel = (self.activeLabel + 1) % len(self.labelRects)
+
+        print "toggling to", self.activeLabel, len(self.labelRects)
+        penCol = QtGui.QColor()
+        penCol.setRgb(200, 0, 0)
+        pen = QtGui.QPen(penCol)
+        self.labelRects[self.activeLabel].setPen(pen)
+
+        self.scrollView.centerOn(self.labelRects[self.activeLabel])
+
+    def deteleActiveLabel(self):
+        labelRect = self.labelRects[self.activeLabel]
+        self.overviewScene.removeItem(labelRect)
+        self.labelRects.pop(self.activeLabel)
+
+        if self.activeLabel >= len(self.labelRects):
+            self.activeLabel = len(self.labelRects) - 1
 
 
 class ScrollAreaEventFilter(QtCore.QObject):
@@ -247,7 +354,7 @@ class MouseFilterObj(QtCore.QObject):
 if __name__ == "__main__":    
     app = QtGui.QApplication(sys.argv)
     
-    w = TestClass(basefolder=basefolder)
+    w = TestClass(basefolder=audiofolder, labelfolder=labelfolder)
     
     sys.exit(app.exec_())
 

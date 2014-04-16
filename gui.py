@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Wed Apr 16 12:38:40 2014
+# Created: Wed Apr 16 15:56:49 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -51,6 +51,18 @@ class Ui_MainWindow(object):
         self.pb_next = QtGui.QPushButton(self.centralwidget)
         self.pb_next.setObjectName("pb_next")
         self.horizontalLayout.addWidget(self.pb_next)
+        self.pb_save = QtGui.QPushButton(self.centralwidget)
+        self.pb_save.setObjectName("pb_save")
+        self.horizontalLayout.addWidget(self.pb_save)
+        self.pb_load = QtGui.QPushButton(self.centralwidget)
+        self.pb_load.setObjectName("pb_load")
+        self.horizontalLayout.addWidget(self.pb_load)
+        self.pb_toggle = QtGui.QPushButton(self.centralwidget)
+        self.pb_toggle.setObjectName("pb_toggle")
+        self.horizontalLayout.addWidget(self.pb_toggle)
+        self.pb_delete = QtGui.QPushButton(self.centralwidget)
+        self.pb_delete.setObjectName("pb_delete")
+        self.horizontalLayout.addWidget(self.pb_delete)
         self.pb_debug = QtGui.QPushButton(self.centralwidget)
         self.pb_debug.setObjectName("pb_debug")
         self.horizontalLayout.addWidget(self.pb_debug)
@@ -72,5 +84,9 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "MainWindow", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_prev.setText(QtGui.QApplication.translate("MainWindow", "show previous audio file", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_next.setText(QtGui.QApplication.translate("MainWindow", "show next audio file", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_save.setText(QtGui.QApplication.translate("MainWindow", "save", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_load.setText(QtGui.QApplication.translate("MainWindow", "load", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_toggle.setText(QtGui.QApplication.translate("MainWindow", "toggle", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_delete.setText(QtGui.QApplication.translate("MainWindow", "delete", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_debug.setText(QtGui.QApplication.translate("MainWindow", "debug", None, QtGui.QApplication.UnicodeUTF8))
 
