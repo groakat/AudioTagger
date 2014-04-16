@@ -25,18 +25,20 @@ class TestClass(QtGui.QMainWindow):
         self.ui.setupUi(self)
 
         self.scrollEvent = ScrollAreaEventFilter(self)
-        self.ui.scrollArea.horizontalScrollBar().installEventFilter(self.scrollEvent)
         self.horzScrollbarValue = 0
 
         self.basefolder = basefolder
         self.filelist = self.getListOfWavefiles(self.basefolder)
         self.fileidx = 0
 
+        self.specHeight = 360
+
         self.bgImg = None
         self.cropRect = None
+        self.scrollView = QtGui.QGraphicsView()
         self.setupGraphicsView()
 
-        self.scrollLabel = QtGui.QLabel()
+        self.ui.scrollArea.horizontalScrollBar().installEventFilter(self.scrollEvent)
 
         self.configureElements()
         self.connectElements()
@@ -52,12 +54,13 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_debug.clicked.connect(self.debug)
 
     def configureElements(self):
-        self.ui.scrollArea.setWidget(self.scrollLabel)
-        self.scrollLabel.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
+        self.ui.scrollArea.setWidget(self.scrollView)
+        self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
+        self.ui.scrollArea.setFixedHeight(self.specHeight + 30)
 
     def setupGraphicsView(self):
         w = 6000
-        h = 350
+        h = self.specHeight
         self.sceneRect = QtCore.QRectF(0, 0, w,h)
           
         self.ui.gw_overview.setFrameStyle(QtGui.QFrame.NoFrame)
@@ -67,6 +70,7 @@ class TestClass(QtGui.QMainWindow):
         self.overviewScene.setSceneRect(self.sceneRect)
 
         self.ui.gw_overview.setScene(self.overviewScene)
+        self.scrollView.setScene(self.overviewScene)
 
 
     def loadNext(self):
@@ -121,22 +125,28 @@ class TestClass(QtGui.QMainWindow):
         clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
-        qi = qim2np.array2qimage(clrSpec)
-        px = QtGui.QPixmap().fromImage(qi)     
+        qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
+        self.setBackgroundImage(qi)
+
+    def setBackgroundImage(self, qi):
+        px = QtGui.QPixmap().fromImage(qi)   
         if self.bgImg:
             self.overviewScene.removeItem(self.bgImg)
 
         self.bgImg = QtGui.QGraphicsPixmapItem(px)
         self.overviewScene.addItem(self.bgImg)
         self.bgImg.setZValue(-100)
-        self.bgImg.setPos(0,0)         
+        self.bgImg.setPos(0,0)   
+
         self.ui.gw_overview.ensureVisible(self.bgImg)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
+        # self.scrollView.ensureVisible(0, 0, 100, 500)
 
-        self.scrollLabel.setPixmap(px)
-        self.scrollLabel.adjustSize()
-        self.scrollLabel.setScaledContents(True)
+
+        # self.scrollLabel.setPixmap(px)
+        # self.scrollLabel.adjustSize()
+        # self.scrollLabel.setScaledContents(True)
 
     def debug(self):
         print self.ui.scrollArea.horizontalScrollBar().value()
@@ -151,7 +161,7 @@ class TestClass(QtGui.QMainWindow):
         self.addRectToOverview(left, right)
 
     def addRectToOverview(self, left, right):
-        rect = QtCore.QRectF(left, 0, right, 360)
+        rect = QtCore.QRectF(left, 0, right, self.specHeight)
         if not self.cropRect:
             penCol = QtGui.QColor()
             penCol.setRgb(0, 0, 0)
@@ -174,8 +184,10 @@ class ScrollAreaEventFilter(QtCore.QObject):
         self.parent = parent
         
     def eventFilter(self, obj, event):
+        print type(event)
         if type(event) == QtCore.QDynamicPropertyChangeEvent:
             self.parent.scrollbarSlideEvent()
+
 
 
 
