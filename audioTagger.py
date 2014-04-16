@@ -57,6 +57,7 @@ class TestClass(QtGui.QMainWindow):
         self.activeLabel = None
         self.specHeight = 360
         self.contentChanged = False
+        self.isDeletingRects = False
 
         self.bgImg = None
         self.cropRect = None
@@ -191,7 +192,8 @@ class TestClass(QtGui.QMainWindow):
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
     def debug(self):
-        self.saveSceneRects()
+        self.isDeletingRects = not self.isDeletingRects
+        print self.isDeletingRects
 
     def getZoomBoundingBox(self):
         left = self.scrollView.horizontalScrollBar().value()
@@ -217,6 +219,9 @@ class TestClass(QtGui.QMainWindow):
             self.getZoomBoundingBox()
 
     def openSceneRectangle(self, x, y):
+        if self.isDeletingRects:
+            print self.overviewScene.itemAt(x, y)
+
         rect = QtCore.QRectF(x, y, 0, 0)
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
