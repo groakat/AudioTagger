@@ -35,10 +35,10 @@ class TestClass(QtGui.QMainWindow):
 
         self.bgImg = None
         self.cropRect = None
-        self.scrollView = QtGui.QGraphicsView()
+        self.scrollView = self.ui.scrollView#QtGui.QGraphicsView()
         self.setupGraphicsView()
 
-        self.ui.scrollArea.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
 
         self.configureElements()
         self.connectElements()
@@ -54,9 +54,9 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_debug.clicked.connect(self.debug)
 
     def configureElements(self):
-        self.ui.scrollArea.setWidget(self.scrollView)
+        # self.ui.scrollArea.setWidget(self.scrollView)
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
-        self.ui.scrollArea.setFixedHeight(self.specHeight + 30)
+        self.scrollView.setFixedHeight(self.specHeight + 30)
 
     def setupGraphicsView(self):
         w = 6000
@@ -149,13 +149,13 @@ class TestClass(QtGui.QMainWindow):
         # self.scrollLabel.setScaledContents(True)
 
     def debug(self):
-        print self.ui.scrollArea.horizontalScrollBar().value()
-        print self.ui.scrollArea.horizontalScrollBar().pageStep()
+        print self.scrollView.horizontalScrollBar().value()
+        print self.scrollView.horizontalScrollBar().pageStep()
         self.getZoomBoundingBox()
 
     def getZoomBoundingBox(self):
-        left = self.ui.scrollArea.horizontalScrollBar().value()
-        areaWidth = self.ui.scrollArea.width()
+        left = self.scrollView.horizontalScrollBar().value()
+        areaWidth = self.scrollView.width()
         right = float(areaWidth)
         print "left:", left, "right:", right
         self.addRectToOverview(left, right)
@@ -171,9 +171,9 @@ class TestClass(QtGui.QMainWindow):
 
     def scrollbarSlideEvent(self):
         if self.horzScrollbarValue != \
-        self.ui.scrollArea.horizontalScrollBar().value():
+        self.scrollView.horizontalScrollBar().value():
             self.horzScrollbarValue = \
-                self.ui.scrollArea.horizontalScrollBar().value()
+                self.scrollView.horizontalScrollBar().value()
 
             self.getZoomBoundingBox()
 
@@ -184,7 +184,6 @@ class ScrollAreaEventFilter(QtCore.QObject):
         self.parent = parent
         
     def eventFilter(self, obj, event):
-        print type(event)
         if type(event) == QtCore.QDynamicPropertyChangeEvent:
             self.parent.scrollbarSlideEvent()
 
