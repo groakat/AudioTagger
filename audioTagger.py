@@ -38,6 +38,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.activeLabel = None
         self.specHeight = 360
+        self.contentChanged = False
 
         self.bgImg = None
         self.cropRect = None
@@ -88,6 +89,10 @@ class TestClass(QtGui.QMainWindow):
 
 
     def loadNext(self):
+        canProceed = self.checkIfSavingNecessary()
+        if not canProceed:
+            return
+
         self.clearSceneRects()
         if self.fileidx < len(self.filelist) - 1:
             self.fileidx += 1
@@ -96,6 +101,10 @@ class TestClass(QtGui.QMainWindow):
         self.loadSceneRects()
 
     def loadPrev(self): 
+        canProceed = self.checkIfSavingNecessary()
+        if not canProceed:
+            return
+
         self.clearSceneRects()
         if self.fileidx > 1:
             self.fileidx -= 1
@@ -201,6 +210,7 @@ class TestClass(QtGui.QMainWindow):
         self.labelRects.append(self.labelRect)
         self.labelRect = None
         print "closing rectangle"
+        self.contentChanged = True
 
     def resizeSceneRectangle(self, x, y):
         if self.labelRect:
@@ -222,6 +232,7 @@ class TestClass(QtGui.QMainWindow):
             self.overviewScene.removeItem(labelRect)
 
         self.labelRects = []
+        self.contentChanged = True
 
     def convertLabelRectsToRects(self):
         rects = []
@@ -254,6 +265,8 @@ class TestClass(QtGui.QMainWindow):
             rects = self.convertLabelRectsToRects()
             json.dump(rects, f)
 
+        self.contentChanged = False
+
     def loadSceneRects(self, fileAppendix="-sceneRect"):
         filename = self.createLabelFilename(fileAppendix)
 
@@ -262,6 +275,7 @@ class TestClass(QtGui.QMainWindow):
                 rects = json.load(f)
                 self.convertRectsToLabelRects(rects)
 
+        self.contentChanged = False
 
     def createLabelFilename(self, fileAppendix="-sceneRect"):        
         currentWavFilename = self.filelist[self.fileidx]
@@ -298,12 +312,37 @@ class TestClass(QtGui.QMainWindow):
         self.scrollView.centerOn(self.labelRects[self.activeLabel])
 
     def deteleActiveLabel(self):
-        labelRect = self.labelRects[self.activeLabel]
-        self.overviewScene.removeItem(labelRect)
-        self.labelRects.pop(self.activeLabel)
+        labelRect = self.labelRects.pop(self.activeLabel)
+        self.overviewScene.removeItem(labelRect)        
 
         if self.activeLabel >= len(self.labelRects):
             self.activeLabel = len(self.labelRects) - 1
+
+        self.contentChanged = True
+
+    def checkIfSavingNecessary(self):
+        if self.contentChanged:
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText("The document has been modified.")
+            msgBox.setInformativeText("Do you want to save your changes?")
+            msgBox.setStandardButtons(QtGui.QMessageBox.Save | 
+                                      QtGui.QMessageBox.Discard | 
+                                      QtGui.QMessageBox.Cancel)
+            msgBox.setDefaultButton(QtGui.QMessageBox.Save)
+            ret = msgBox.exec_()
+
+            if ret == QtGui.QMessageBox.Save:
+                self.saveSceneRects()
+                return True
+            elif ret == QtGui.QMessageBox.Discard:
+                return True
+            elif ret == QtGui.QMessageBox.Cancel:
+                return False
+            else:
+                return True
+                # should never be reached
+        else:
+            return True
 
 
 class ScrollAreaEventFilter(QtCore.QObject):
