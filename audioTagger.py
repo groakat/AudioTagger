@@ -24,15 +24,15 @@ labelTypes = ["bat",
 labelColours = []
 
 penCol = QtGui.QColor()
-penCol.setRgb(0, 0, 200)
+penCol.setRgb(96, 96, 96)
 labelColours += [penCol]
 
 penCol = QtGui.QColor()
-penCol.setRgb(200, 0, 200)
+penCol.setRgb(51, 51, 255)
 labelColours += [penCol]
 
 penCol = QtGui.QColor()
-penCol.setRgb(0, 200, 200)
+penCol.setRgb(255, 0, 127)
 labelColours += [penCol]
 
 
@@ -172,7 +172,7 @@ class TestClass(QtGui.QMainWindow):
         return X
 
     def updateLabelWithSpectrogram(self, spec):
-        clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)#T change color, alter plt.cm.jet to plt.cm.#alternative code#
+        clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
@@ -183,9 +183,9 @@ class TestClass(QtGui.QMainWindow):
         if self.bgImg:
             self.overviewScene.removeItem(self.bgImg)
 
-        self.bgImg = QtGui.QGraphicsPixmapItem(px)
+        self.bgImg = QtGui.QGraphicsPixmapItem(px)#Change Qt array to a Qt graphic
         self.overviewScene.addItem(self.bgImg)
-        self.bgImg.setZValue(-100)
+        self.bgImg.setZValue(-100)#Ensure spectrogram graphic is displayed as background
         self.bgImg.setPos(0,0)   
 
         self.ui.gw_overview.ensureVisible(self.bgImg)
@@ -221,7 +221,7 @@ class TestClass(QtGui.QMainWindow):
     def clickInScene(self, x, y):
         if not self.ui.cb_create.checkState():
             self.mouseEventFilter.isRectangleOpen = False
-            self.toogleToItem( self.overviewScene.itemAt(x, y))
+            self.toogleToItem(self.overviewScene.itemAt(x, y))
         else:
             self.openSceneRectangle(x, y)
 
@@ -278,7 +278,7 @@ class TestClass(QtGui.QMainWindow):
         self.clearSceneRects()
 
         for r, c in labels:
-            rect = QtCore.QRectF(*r)
+            rect = QtCore.QRectF(*r)#Ask Peter again what the * means
 
             try:
                 classIdx = labelTypes.index(c)
@@ -323,7 +323,7 @@ class TestClass(QtGui.QMainWindow):
     def createLabelFilename(self, fileAppendix="-sceneRect"):        
         currentWavFilename = self.filelist[self.fileidx]
         if currentWavFilename.endswith('.wav'):
-            filename = currentWavFilename[:-4]
+            filename = currentWavFilename[:-4]#Everything other than last 4 characters, i.e. .wav
         else:
             raise RuntimeError("Program only works for wav files")
 
@@ -335,10 +335,10 @@ class TestClass(QtGui.QMainWindow):
 
 
     def toggleLabels(self):
-        if self.activeLabel is None:
+        if self.activeLabel is None: #iF nothing is selected, highlight the [0] index label when toggle button pressed
             activeLabel = 0
         else:
-            activeLabel = (self.activeLabel + 1) % len(self.labelRects)
+            activeLabel = (self.activeLabel + 1) % len(self.labelRects) #Move label index by 1 with every toggle button press
 
         self.toogleTo(activeLabel)
 
@@ -353,7 +353,7 @@ class TestClass(QtGui.QMainWindow):
 
         print "toggling to", self.activeLabel, len(self.labelRects)
         penCol = QtGui.QColor()
-        penCol.setRgb(200, 0, 0)
+        penCol.setRgb(255, 255, 255)
         pen = QtGui.QPen(penCol)
         self.labelRects[self.activeLabel].setPen(pen)
 
@@ -370,6 +370,8 @@ class TestClass(QtGui.QMainWindow):
 
         if self.activeLabel >= len(self.labelRects):
             self.activeLabel = len(self.labelRects) - 1
+        else:
+            self.activeLabel = self.activeLabel - 1 #I did this myself!!!!!!!!!!!
 
         self.contentChanged = True
 
@@ -398,7 +400,7 @@ class TestClass(QtGui.QMainWindow):
             return True
 
 
-class ScrollAreaEventFilter(QtCore.QObject):
+class ScrollAreaEventFilter(QtCore.QObject):#Ask Peter why these are seperate classes?
     def __init__(self, parent):
         QtCore.QObject.__init__(self)
         self.parent = parent
@@ -408,7 +410,7 @@ class ScrollAreaEventFilter(QtCore.QObject):
             self.parent.scrollbarSlideEvent()
 
 
-class MouseFilterObj(QtCore.QObject):
+class MouseFilterObj(QtCore.QObject):#And this one
     def __init__(self, parent):
         QtCore.QObject.__init__(self)
         self.parent = parent
