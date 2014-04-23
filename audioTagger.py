@@ -13,9 +13,13 @@ from PySide import QtCore, QtGui
 
 from AudioTagger.gui import Ui_MainWindow
 
+#
+# audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+# labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
 
-audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
-labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
+
+audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
+labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
 labelTypes = ["bat",
               "bird",
@@ -210,6 +214,10 @@ class TestClass(QtGui.QMainWindow):
         else:
             self.cropRect.setRect(rect)
 
+        self.ui.gw_overview.update()
+        self.overviewScene.update()
+
+
     def scrollbarSlideEvent(self):
         if self.horzScrollbarValue != \
         self.scrollView.horizontalScrollBar().value():
@@ -234,12 +242,10 @@ class TestClass(QtGui.QMainWindow):
         self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
         self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentIndex()
 
-        print self.labelRect
 
     def closeSceneRectangle(self):
         self.labelRects.append(self.labelRect)
         self.labelRect = None
-        print "closing rectangle"
         self.contentChanged = True
 
     def resizeSceneRectangle(self, x, y):
@@ -250,7 +256,6 @@ class TestClass(QtGui.QMainWindow):
             h = y - orgY
             self.labelRect.setRect(orgX,
                                    orgY, w, h)
-            print self.labelRect.rect()
 
     def clearSceneRects(self):        
         if self.labelRect:
@@ -404,7 +409,8 @@ class ScrollAreaEventFilter(QtCore.QObject):
         self.parent = parent
         
     def eventFilter(self, obj, event):
-        if type(event) == QtCore.QDynamicPropertyChangeEvent:
+        if type(event) == QtCore.QDynamicPropertyChangeEvent \
+        or event.type() == QtCore.QEvent.Type.MouseMove:
             self.parent.scrollbarSlideEvent()
 
 
