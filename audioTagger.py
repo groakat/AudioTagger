@@ -221,7 +221,8 @@ class TestClass(QtGui.QMainWindow):
     def clickInScene(self, x, y):
         if not self.ui.cb_create.checkState():
             self.mouseEventFilter.isRectangleOpen = False
-            self.toogleToItem(self.overviewScene.itemAt(x, y))
+            self.toogleToItem(self.overviewScene.itemAt(x, y), 
+                              centerOnActiveLabel=False)
         else:
             self.openSceneRectangle(x, y)
 
@@ -343,7 +344,7 @@ class TestClass(QtGui.QMainWindow):
         self.toogleTo(activeLabel)
 
 
-    def toogleTo(self, activeLabel):
+    def toogleTo(self, activeLabel, centerOnActiveLabel=True):
         if self.activeLabel is not None:
             penCol = labelColours[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
@@ -357,21 +358,22 @@ class TestClass(QtGui.QMainWindow):
         pen = QtGui.QPen(penCol)
         self.labelRects[self.activeLabel].setPen(pen)
 
-        self.scrollView.centerOn(self.labelRects[self.activeLabel])
+        if centerOnActiveLabel:
+            self.scrollView.centerOn(self.labelRects[self.activeLabel])
 
 
-    def toogleToItem(self, item):
+    def toogleToItem(self, item, centerOnActiveLabel=True):
         itemIdx = self.labelRects.index(item)
-        self.toogleTo(itemIdx)
+        self.toogleTo(itemIdx, centerOnActiveLabel)
 
     def deteleActiveLabel(self):
+        if self.activeLabel is None:
+            return
+
         labelRect = self.labelRects.pop(self.activeLabel)
         self.overviewScene.removeItem(labelRect)        
 
-        if self.activeLabel >= len(self.labelRects):
-            self.activeLabel = len(self.labelRects) - 1
-        else:
-            self.activeLabel = self.activeLabel - 1 #I did this myself!!!!!!!!!!!
+        self.activeLabel = None
 
         self.contentChanged = True
 
