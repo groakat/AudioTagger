@@ -14,12 +14,12 @@ from PySide import QtCore, QtGui
 from AudioTagger.gui import Ui_MainWindow
 
 #
-# audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
-# labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
+audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
 
 
-audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
-labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
+# audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
+# labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
 labelTypes = ["bat",
               "bird",
@@ -60,6 +60,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.activeLabel = None
         self.specHeight = 360
+        self.specWidth = 6000
         self.contentChanged = False
         self.isDeletingRects = False
 
@@ -95,16 +96,17 @@ class TestClass(QtGui.QMainWindow):
         self.scrollView.setFixedHeight(self.specHeight + 30)
         self.ui.cb_labelType.addItems(labelTypes)
 
-    def setupGraphicsView(self):
-        w = 6000
+        w = self.specWidth
         h = self.specHeight
         self.sceneRect = QtCore.QRectF(0, 0, w,h)
-          
+        self.overviewScene.setSceneRect(self.sceneRect)
+
+
+    def setupGraphicsView(self):          
         self.ui.gw_overview.setFrameStyle(QtGui.QFrame.NoFrame)
         self.overviewScene = QtGui.QGraphicsScene(self)
 
         self.overviewScene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
-        self.overviewScene.setSceneRect(self.sceneRect)
 
         self.ui.gw_overview.setScene(self.overviewScene)
         self.scrollView.setScene(self.overviewScene)
@@ -140,6 +142,9 @@ class TestClass(QtGui.QMainWindow):
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
         self.updateLabelWithSpectrogram(self.spec)
+        self.specHeight = self.spec.shape[1]
+        self.specWidth = self.spec.shape[0]
+        self.configureElements()
 
 
     def getListOfWavefiles(self, folder):
