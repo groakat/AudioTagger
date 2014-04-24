@@ -90,7 +90,6 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_prev.clicked.connect(self.loadPrev)
         self.ui.pb_debug.clicked.connect(self.debug)
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
-        self.ui.pb_load.clicked.connect(self.loadSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
 
@@ -126,6 +125,8 @@ class TestClass(QtGui.QMainWindow):
                         self, self.toggleLabels)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_S), 
                         self, self.saveSceneRects)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Delete), 
+                        self, self.deteleActiveLabel)
 
     def loadNext(self):
         canProceed = self.checkIfSavingNecessary()

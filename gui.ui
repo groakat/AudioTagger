@@ -75,13 +75,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pb_load">
-          <property name="text">
-           <string>load</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="pb_toggle">
           <property name="text">
            <string>toggle</string>

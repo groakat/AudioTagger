@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Tue Apr 22 13:59:54 2014
+# Created: Thu Apr 24 17:05:27 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -54,9 +54,6 @@ class Ui_MainWindow(object):
         self.pb_save = QtGui.QPushButton(self.centralwidget)
         self.pb_save.setObjectName("pb_save")
         self.horizontalLayout.addWidget(self.pb_save)
-        self.pb_load = QtGui.QPushButton(self.centralwidget)
-        self.pb_load.setObjectName("pb_load")
-        self.horizontalLayout.addWidget(self.pb_load)
         self.pb_toggle = QtGui.QPushButton(self.centralwidget)
         self.pb_toggle.setObjectName("pb_toggle")
         self.horizontalLayout.addWidget(self.pb_toggle)
@@ -92,7 +89,6 @@ class Ui_MainWindow(object):
         self.pb_prev.setText(QtGui.QApplication.translate("MainWindow", "show previous audio file", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_next.setText(QtGui.QApplication.translate("MainWindow", "show next audio file", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_save.setText(QtGui.QApplication.translate("MainWindow", "save", None, QtGui.QApplication.UnicodeUTF8))
-        self.pb_load.setText(QtGui.QApplication.translate("MainWindow", "load", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_toggle.setText(QtGui.QApplication.translate("MainWindow", "toggle", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_delete.setText(QtGui.QApplication.translate("MainWindow", "delete", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_debug.setText(QtGui.QApplication.translate("MainWindow", "debug", None, QtGui.QApplication.UnicodeUTF8))
