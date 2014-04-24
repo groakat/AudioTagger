@@ -50,6 +50,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.scrollEvent = ScrollAreaEventFilter(self)
         self.mouseEventFilter = MouseFilterObj(self)
+        self.KeyboardFilter = KeyboardFilterObj(self)
 
         self.horzScrollbarValue = 0
 
@@ -70,6 +71,8 @@ class TestClass(QtGui.QMainWindow):
         self.setupGraphicsView()
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        # self.installEventFilter(self.KeyboardFilter)
+        self.defineShortcuts()
 
         self.labelRects = []
         self.rectClasses = dict()
@@ -114,6 +117,15 @@ class TestClass(QtGui.QMainWindow):
 
         self.overviewScene.installEventFilter(self.mouseEventFilter)
 
+    def defineShortcuts(self):        
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), 
+                        self, self.loadNext)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), 
+                        self, self.loadPrev)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Tab), 
+                        self, self.toggleLabels)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_S), 
+                        self, self.saveSceneRects)
 
     def loadNext(self):
         canProceed = self.checkIfSavingNecessary()
@@ -447,15 +459,25 @@ class MouseFilterObj(QtCore.QObject):#And this one
                     self.parent.resizeSceneRectangle(int(event.scenePos().x()), 
                                                     int( event.scenePos().y()))
 
-            
-        # if (event.type() == QtCore.QEvent.Leave):
-        #     self.parent.setCropCenter(None, None, increment=self.increment)
-            
-        # if (event.type() == QtCore.QEvent.GraphicsSceneWheel):
-        #     self.increment -= event.delta()
-            
         return False
 
+class KeyboardFilterObj(QtCore.QObject):
+    def __init__(self, parent):
+        QtCore.QObject.__init__(self)
+        self.parent = parent
+        
+    def eventFilter(self, obj, event):
+        # print event.type()
+        if event.type() == QtCore.QEvent.Type.KeyPress:
+            if event.key() == QtCore.Qt.Key_Tab:
+                self.parent.toggleLabels()
+            elif event.key() == QtCore.Qt.Key_Left:
+                self.parent.loadPrev()
+            elif event.key() == QtCore.Qt.Key_Right:
+                self.parent.loadNext()
+
+            else:
+                print event.key()
 
 
 if __name__ == "__main__":    
