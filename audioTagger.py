@@ -80,6 +80,7 @@ class TestClass(QtGui.QMainWindow):
         self.configureElements()
         self.connectElements()
         self.show()
+        self.ui.cb_labelType.addItems(labelTypes)
 
     def resizeEvent(self, event):
         super(TestClass, self).resizeEvent(event)        
@@ -96,7 +97,6 @@ class TestClass(QtGui.QMainWindow):
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
         self.scrollView.setFixedHeight(self.specHeight + 30)
-        self.ui.cb_labelType.addItems(labelTypes)
 
         w = self.specWidth
         h = self.specHeight
