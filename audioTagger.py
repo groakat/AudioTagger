@@ -116,6 +116,15 @@ class TestClass(QtGui.QMainWindow):
 
         self.overviewScene.installEventFilter(self.mouseEventFilter)
 
+    def selectLabel0(self):
+        self.ui.cb_labelType.setCurrentIndex(0)
+
+    def selectLabel1(self):
+        self.ui.cb_labelType.setCurrentIndex(1)
+
+    def selectLabel2(self):
+        self.ui.cb_labelType.setCurrentIndex(2)
+
     def defineShortcuts(self):        
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), 
                         self, self.loadNext)
@@ -127,6 +136,12 @@ class TestClass(QtGui.QMainWindow):
                         self, self.saveSceneRects)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Delete), 
                         self, self.deteleActiveLabel)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_1),
+                        self, self.selectLabel0)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_2),
+                        self, self.selectLabel1)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
+                        self, self.selectLabel2)
 
     def loadNext(self):
         canProceed = self.checkIfSavingNecessary()
