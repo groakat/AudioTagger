@@ -155,6 +155,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.loadSceneRects()
         self.activeLabel = None
+        print self.filelist[self.fileidx]
 
     def loadPrev(self): 
         canProceed = self.checkIfSavingNecessary()
@@ -168,6 +169,7 @@ class TestClass(QtGui.QMainWindow):
 
         self.loadSceneRects()
         self.activeLabel = None
+        print self.filelist[self.fileidx]
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
