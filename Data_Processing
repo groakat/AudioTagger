@@ -1,0 +1,24 @@
+#Function for replacing hyphens with underscores in filename
+
+def HyphenReplaceUnder(directory):
+    """
+    Function to batch replace the hyphen (-) in filenames with an underscore (_).
+    
+    Directory where files are located must be specified in format 'C:/...Folder name/'
+    
+    """
+    
+    import os
+    TARGET_DIR = directory
+    
+    for FILE_OLD in os.listdir(TARGET_DIR):
+
+        FILE_NEW = FILE_OLD.replace('-', '_')
+        
+        print FILE_NEW
+        FILE_OLD = TARGET_DIR + FILE_OLD
+        FILE_NEW = TARGET_DIR + FILE_NEW
+    
+        print 'Renaming', FILE_OLD, 'to', FILE_NEW
+        os.rename(FILE_OLD, FILE_NEW)
+        
