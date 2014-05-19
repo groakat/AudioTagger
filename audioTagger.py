@@ -182,35 +182,34 @@ class AudioTagger(QtGui.QMainWindow):
     def loadSound(self, wavfile):
         self.s4p.loadWav(wavfile)
 
-    def loadNext(self):
-        canProceed = self.checkIfSavingNecessary()
-        if not canProceed:
-            return
-
+    def updateWavfile(self):
         self.clearSceneRects()
-        if self.fileidx < len(self.filelist) - 1:
-            self.fileidx += 1
-            self.updateSpecLabel()
+
+        self.updateSpecLabel()
 
         self.loadSceneRects()
         self.activeLabel = None
         self.loadSound(self.filelist[self.fileidx])
         print self.filelist[self.fileidx]
+
+
+    def loadNext(self):
+        canProceed = self.checkIfSavingNecessary()
+        if not canProceed:
+            return
+
+        if self.fileidx < len(self.filelist) - 1:
+            self.fileidx += 1
+            self.updateWavfile()
 
     def loadPrev(self): 
         canProceed = self.checkIfSavingNecessary()
         if not canProceed:
             return
 
-        self.clearSceneRects()
         if self.fileidx > 1:
             self.fileidx -= 1
-            self.updateSpecLabel()
-
-        self.loadSceneRects()
-        self.activeLabel = None
-        self.loadSound(self.filelist[self.fileidx])
-        print self.filelist[self.fileidx]
+            self.updateWavfile()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
