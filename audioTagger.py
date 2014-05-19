@@ -62,6 +62,7 @@ class AudioTagger(QtGui.QMainWindow):
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
         self.s4p = S4P.Sound4Python()
+        self.soundPos = 0
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
 
@@ -120,9 +121,11 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.gw_overview.setFrameStyle(QtGui.QFrame.NoFrame)
         self.overviewScene = QtGui.QGraphicsScene(self)
 
-        self.overviewScene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
+        # self.overviewScene.setItemIndexMethod(QtGui.QGraphicsScene.NoIndex)
 
         self.ui.gw_overview.setScene(self.overviewScene)
+        self.ui.gw_overview.setMouseTracking(True)
+
         self.scrollView.setScene(self.overviewScene)
         self.scrollView.setMouseTracking(True)
 
