@@ -178,6 +178,10 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.gw_overview.update()
         self.overviewScene.update()
 
+        if self.ui.cb_followSound.isChecked():
+            self.scrollView.centerOn(self.soundMarker)
+
+
     def activateSoundSeeking(self):
         if not self.playing:
             self.seekingSound = True
@@ -208,6 +212,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def stopSound(self):
         self.playing = False
+        self.ui.pb_play.setText("play")
         self.s4p.stop()
         self.soundTimer.stop()
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Mon May 19 16:05:19 2014
+# Created: Mon May 19 17:08:05 2014
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -108,6 +108,9 @@ class Ui_MainWindow(object):
         self.lbl_audio_position.setSizePolicy(sizePolicy)
         self.lbl_audio_position.setObjectName("lbl_audio_position")
         self.horizontalLayout_4.addWidget(self.lbl_audio_position)
+        self.cb_followSound = QtGui.QCheckBox(self.centralwidget)
+        self.cb_followSound.setObjectName("cb_followSound")
+        self.horizontalLayout_4.addWidget(self.cb_followSound)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -142,6 +145,7 @@ class Ui_MainWindow(object):
         self.pb_stop.setText(QtGui.QApplication.translate("MainWindow", "stop", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_seek.setText(QtGui.QApplication.translate("MainWindow", "seek", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
+        self.cb_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
 
