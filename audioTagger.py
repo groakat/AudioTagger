@@ -94,9 +94,17 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.openFolder(basefolder, labelfolder)
 
+    ######################## GUI STUFF ########################
     def resizeEvent(self, event):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+
+    def closeEvent(self, event):
+        canProceed = self.checkIfSavingNecessary()
+        if canProceed:
+            event.accept()
+        else:
+            event.ignore()
 
     def connectElements(self):
         self.ui.pb_next.clicked.connect(self.loadNext)
@@ -165,6 +173,8 @@ class AudioTagger(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
                         self, self.activateSoundSeeking)
 
+
+    ################### SOUND STUFF #######################
     def updateSoundMarker(self):
         markerPos = self.soundPos * 100 # multiply by step-size in SpecGen()
         line = QtCore.QLineF(markerPos, 0, markerPos, self.specHeight)
@@ -225,6 +235,8 @@ class AudioTagger(QtGui.QMainWindow):
     def loadSound(self, wavfile):
         self.s4p.loadWav(wavfile)
 
+
+    ################### WAV FILE LOAD  ######################
     def updateWavfile(self):
         self.clearSceneRects()
         self.updateSpecLabel()
@@ -297,6 +309,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.fileidx = -1
         self.loadNext()
 
+
+    ####################### SPECTROGRAM #############################
     def SpecGen(self, filepath):
         sr,x = scipy.io.wavfile.read(filepath)
 
@@ -345,6 +359,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.isDeletingRects = not self.isDeletingRects
         print self.isDeletingRects
 
+
+    #################### VISUALZATION/ INTERACTION (GRAPHICVIEWS) #######################
     def getZoomBoundingBox(self):
         left = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
@@ -420,6 +436,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelRects = []
         self.contentChanged = True
 
+
+    ################### LABELS (SAVE/LOAD/NAVIGATION) #########################
     def convertLabelRectsToRects(self):
         labels = []
         for labelRect in self.labelRects:
@@ -537,8 +555,8 @@ class AudioTagger(QtGui.QMainWindow):
             msgBox = QtGui.QMessageBox()
             msgBox.setText("The document has been modified.")
             msgBox.setInformativeText("Do you want to save your changes?")
-            msgBox.setStandardButtons(QtGui.QMessageBox.Save | 
-                                      QtGui.QMessageBox.Discard | 
+            msgBox.setStandardButtons(QtGui.QMessageBox.Save |
+                                      QtGui.QMessageBox.Discard |
                                       QtGui.QMessageBox.Cancel)
             msgBox.setDefaultButton(QtGui.QMessageBox.Save)
             ret = msgBox.exec_()
