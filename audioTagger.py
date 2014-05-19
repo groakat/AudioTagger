@@ -11,6 +11,8 @@ import qimage2ndarray as qim2np
 
 from PySide import QtCore, QtGui
 
+import sound4python as S4P
+
 from AudioTagger.gui import Ui_MainWindow
 
 #
@@ -56,8 +58,12 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.basefolder = basefolder
         self.labelfolder = labelfolder
-        self.filelist = self.getListOfWavefiles(self.basefolder)
         self.fileidx = 0
+        # self.filelist = self.getListOfWavefiles(self.basefolder)
+
+        self.s4p = S4P.Sound4Python()
+        self.soundTimer = QtCore.QTimer()
+        self.soundTimer.timeout.connect(self.updateSoundPosition)
 
         self.activeLabel = None
         self.specHeight = 360
@@ -82,6 +88,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.show()
         self.ui.cb_labelType.addItems(labelTypes)
 
+        self.openFolder(basefolder, labelfolder)
+
     def resizeEvent(self, event):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
@@ -94,6 +102,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
+        self.ui.pb_play.clicked.connect(self.playSound)
+        self.ui.pb_pause.clicked.connect(self.pauseSound)
+        self.ui.pb_stop.clicked.connect(self.stopSound)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -144,6 +155,30 @@ class AudioTagger(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
                         self, self.selectLabel2)
 
+    def updateSoundPosition(self):
+        self.soundPos += 0.1
+        self.ui.lbl_audio_position.setText("position: {0}".format(self.soundPos))
+
+    def playSound(self):
+        self.s4p.play()
+        self.soundPos = self.s4p.sec
+        self.soundTimer.start(100)
+
+    def pauseSound(self):
+        print("pause sound")
+        self.s4p.pause()
+        self.soundTimer.stop()
+
+    def stopSound(self):
+        self.s4p.stop()
+        self.soundTimer.stop()
+
+    def seekSound(self, pos):
+        self.s4p.seek(pos)
+
+    def loadSound(self, wavfile):
+        self.s4p.loadWav(wavfile)
+
     def loadNext(self):
         canProceed = self.checkIfSavingNecessary()
         if not canProceed:
@@ -156,6 +191,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.loadSceneRects()
         self.activeLabel = None
+        self.loadSound(self.filelist[self.fileidx])
         print self.filelist[self.fileidx]
 
     def loadPrev(self): 
@@ -170,6 +206,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.loadSceneRects()
         self.activeLabel = None
+        self.loadSound(self.filelist[self.fileidx])
         print self.filelist[self.fileidx]
 
     def updateSpecLabel(self):
@@ -190,18 +227,25 @@ class AudioTagger(QtGui.QMainWindow):
         return fileList
 
 
-    def openFolder(self):
-        dialog = QtGui.QFileDialog()
-        dialog.setFileMode(QtGui.QFileDialog.Directory)
-        filename = dialog.getExistingDirectory(self,
-                    "Open Folder with wav files",
-                    "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+    def openFolder(self, wavFolder=None, labelFolder=None):
+        if wavFolder is None:
+            dialog = QtGui.QFileDialog()
+            dialog.setFileMode(QtGui.QFileDialog.Directory)
+            wavFolder = dialog.getExistingDirectory(self,
+                        "Open Folder with wav files",
+                        "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
 
-        self.filelist = self.getListOfWavefiles(filename)
+        self.filelist = self.getListOfWavefiles(wavFolder)
 
-        self.labelfolder = dialog.getExistingDirectory(self,
-                    "Open Folder with label files",
-                    "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+        if labelFolder is None:
+            labelFolder = dialog.getExistingDirectory(self,
+                        "Open Folder with label files",
+                        "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+
+        self.labelfolder = labelFolder
+
+        if len(self.filelist) == 0:
+            return
 
         self.fileidx = -1
         self.loadNext()
