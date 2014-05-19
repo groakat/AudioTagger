@@ -184,13 +184,15 @@ class AudioTagger(QtGui.QMainWindow):
 
     def updateWavfile(self):
         self.clearSceneRects()
-
         self.updateSpecLabel()
-
         self.loadSceneRects()
         self.activeLabel = None
+
         self.loadSound(self.filelist[self.fileidx])
-        print self.filelist[self.fileidx]
+        self.setWindowTitle("Audio Tagger " + os.path.basename(self.filelist[self.fileidx]))
+
+
+        print(self.filelist[self.fileidx])
 
 
     def loadNext(self):
