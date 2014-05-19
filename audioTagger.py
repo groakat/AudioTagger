@@ -63,6 +63,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.s4p = S4P.Sound4Python()
         self.soundPos = 0
+        self.soundMarker = None
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
 
@@ -157,6 +158,19 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.selectLabel1)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
                         self, self.selectLabel2)
+
+    def updateSoundMarker(self):
+        rect = QtCore.QRectF(self.soundPos, 0, 1, self.specHeight)
+        if not self.soundMarker:
+            penCol = QtGui.QColor()
+            penCol.setRgb(255, 0, 0)
+            self.soundMarker = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+        else:
+            self.soundMarker.setRect(rect)
+
+        self.ui.gw_overview.update()
+        self.overviewScene.update()
+
 
     def updateSoundPosition(self):
         self.soundPos += 0.1
