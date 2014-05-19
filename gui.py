@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Mon May 19 13:58:27 2014
+# Created: Mon May 19 15:24:57 2014
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -105,6 +105,9 @@ class Ui_MainWindow(object):
         self.pb_stop.setSizePolicy(sizePolicy)
         self.pb_stop.setObjectName("pb_stop")
         self.horizontalLayout_4.addWidget(self.pb_stop)
+        self.pb_seek = QtGui.QPushButton(self.centralwidget)
+        self.pb_seek.setObjectName("pb_seek")
+        self.horizontalLayout_4.addWidget(self.pb_seek)
         self.lbl_audio_position = QtGui.QLabel(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -146,6 +149,7 @@ class Ui_MainWindow(object):
         self.pb_play.setText(QtGui.QApplication.translate("MainWindow", "play", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_pause.setText(QtGui.QApplication.translate("MainWindow", "pause", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_stop.setText(QtGui.QApplication.translate("MainWindow", "stop", None, QtGui.QApplication.UnicodeUTF8))
+        self.pb_seek.setText(QtGui.QApplication.translate("MainWindow", "seek", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
