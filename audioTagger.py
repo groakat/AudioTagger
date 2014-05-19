@@ -40,10 +40,10 @@ penCol.setRgb(255, 0, 127)
 labelColours += [penCol]
 
 
-class TestClass(QtGui.QMainWindow):
+class AudioTagger(QtGui.QMainWindow):
     
     def __init__(self, basefolder, labelfolder):      
-        super(TestClass, self).__init__()
+        super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -83,7 +83,7 @@ class TestClass(QtGui.QMainWindow):
         self.ui.cb_labelType.addItems(labelTypes)
 
     def resizeEvent(self, event):
-        super(TestClass, self).resizeEvent(event)        
+        super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
     def connectElements(self):
@@ -93,6 +93,7 @@ class TestClass(QtGui.QMainWindow):
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
+        self.ui.actionOpen_folder.triggered.connect(self.openFolder)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -187,6 +188,23 @@ class TestClass(QtGui.QMainWindow):
                     fileList += [os.path.join(root, f)]
                     
         return fileList
+
+
+    def openFolder(self):
+        dialog = QtGui.QFileDialog()
+        dialog.setFileMode(QtGui.QFileDialog.Directory)
+        filename = dialog.getExistingDirectory(self,
+                    "Open Folder with wav files",
+                    "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+
+        self.filelist = self.getListOfWavefiles(filename)
+
+        self.labelfolder = dialog.getExistingDirectory(self,
+                    "Open Folder with label files",
+                    "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+
+        self.fileidx = -1
+        self.loadNext()
 
     def SpecGen(self, filepath):
         sr,x = scipy.io.wavfile.read(filepath)
@@ -503,7 +521,7 @@ class KeyboardFilterObj(QtCore.QObject):
 if __name__ == "__main__":    
     app = QtGui.QApplication(sys.argv)
     
-    w = TestClass(basefolder=audiofolder, labelfolder=labelfolder)
+    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder)
     
     sys.exit(app.exec_())
 

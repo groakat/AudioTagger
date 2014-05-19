@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Thu Apr 24 17:05:27 2014
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Fri May 16 22:10:11 2014
+#      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -76,10 +76,16 @@ class Ui_MainWindow(object):
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 809, 21))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtGui.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionOpen_folder = QtGui.QAction(MainWindow)
+        self.actionOpen_folder.setObjectName("actionOpen_folder")
+        self.menuFile.addAction(self.actionOpen_folder)
+        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -93,4 +99,6 @@ class Ui_MainWindow(object):
         self.pb_delete.setText(QtGui.QApplication.translate("MainWindow", "delete", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_debug.setText(QtGui.QApplication.translate("MainWindow", "debug", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_create.setText(QtGui.QApplication.translate("MainWindow", "create", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
 
