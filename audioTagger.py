@@ -107,6 +107,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_play.clicked.connect(self.playSound)
         self.ui.pb_pause.clicked.connect(self.pauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
+        self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -172,6 +173,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.gw_overview.update()
         self.overviewScene.update()
 
+    def activateSoundSeeking(self):
+        self.seekingSound = True
+        # self.seekSound(30)
 
     def updateSoundPosition(self):
         self.soundPos += 0.1
@@ -192,8 +196,11 @@ class AudioTagger(QtGui.QMainWindow):
         self.s4p.stop()
         self.soundTimer.stop()
 
-    def seekSound(self, pos):
-        self.s4p.seek(pos)
+    def seekSound(self, graphicsPos):
+        sec = graphicsPos / 100.0
+        self.s4p.seek(sec)
+        self.soundPos = sec
+        self.updateSoundMarker()
 
     def loadSound(self, wavfile):
         self.s4p.loadWav(wavfile)
@@ -346,6 +353,10 @@ class AudioTagger(QtGui.QMainWindow):
             self.getZoomBoundingBox()
 
     def clickInScene(self, x, y):
+        if self.seekingSound:
+            self.mouseEventFilter.isRectangleOpen = False
+            self.seekSound(x)
+
         if not self.ui.cb_create.checkState():
             self.mouseEventFilter.isRectangleOpen = False
             self.toogleToItem(self.overviewScene.itemAt(x, y), 
