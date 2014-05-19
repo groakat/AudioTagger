@@ -64,6 +64,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.s4p = S4P.Sound4Python()
         self.soundPos = 0
         self.soundMarker = None
+        self.seekingSound = False
+        self.playing = False
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
 
@@ -104,8 +106,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
-        self.ui.pb_play.clicked.connect(self.playSound)
-        self.ui.pb_pause.clicked.connect(self.pauseSound)
+        self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
 
@@ -159,6 +160,10 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.selectLabel1)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
                         self, self.selectLabel2)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space),
+                        self, self.playPauseSound)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
+                        self, self.activateSoundSeeking)
 
     def updateSoundMarker(self):
         markerPos = self.soundPos * 100 # multiply by step-size in SpecGen()
@@ -174,8 +179,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.update()
 
     def activateSoundSeeking(self):
-        self.seekingSound = True
-        # self.seekSound(30)
+        if not self.playing:
+            self.seekingSound = True
 
     def updateSoundPosition(self):
         self.soundPos += 0.1
@@ -183,16 +188,26 @@ class AudioTagger(QtGui.QMainWindow):
         self.updateSoundMarker()
 
     def playSound(self):
+        self.playing = True
+        self.ui.pb_play.setText("pause")
         self.s4p.play()
         self.soundPos = self.s4p.sec
         self.soundTimer.start(100)
 
     def pauseSound(self):
-        print("pause sound")
+        self.playing = False
+        self.ui.pb_play.setText("play")
         self.s4p.pause()
         self.soundTimer.stop()
 
+    def playPauseSound(self):
+        if self.playing:
+            self.pauseSound()
+        else:
+            self.playSound()
+
     def stopSound(self):
+        self.playing = False
         self.s4p.stop()
         self.soundTimer.stop()
 

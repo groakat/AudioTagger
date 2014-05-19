@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Mon May 19 15:24:57 2014
+# Created: Mon May 19 16:05:19 2014
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,14 +89,6 @@ class Ui_MainWindow(object):
         self.pb_play.setSizePolicy(sizePolicy)
         self.pb_play.setObjectName("pb_play")
         self.horizontalLayout_4.addWidget(self.pb_play)
-        self.pb_pause = QtGui.QPushButton(self.centralwidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pb_pause.sizePolicy().hasHeightForWidth())
-        self.pb_pause.setSizePolicy(sizePolicy)
-        self.pb_pause.setObjectName("pb_pause")
-        self.horizontalLayout_4.addWidget(self.pb_pause)
         self.pb_stop = QtGui.QPushButton(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -147,7 +139,6 @@ class Ui_MainWindow(object):
         self.cb_create.setText(QtGui.QApplication.translate("MainWindow", "create", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_audio.setText(QtGui.QApplication.translate("MainWindow", "audio: ", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_play.setText(QtGui.QApplication.translate("MainWindow", "play", None, QtGui.QApplication.UnicodeUTF8))
-        self.pb_pause.setText(QtGui.QApplication.translate("MainWindow", "pause", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_stop.setText(QtGui.QApplication.translate("MainWindow", "stop", None, QtGui.QApplication.UnicodeUTF8))
         self.pb_seek.setText(QtGui.QApplication.translate("MainWindow", "seek", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
