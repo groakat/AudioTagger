@@ -250,15 +250,22 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     ################### WAV FILE LOAD  ######################
-    def updateWavfile(self):
+    def resetView(self):
         self.clearSceneRects()
         self.updateSpecLabel()
         self.loadSceneRects()
         self.activeLabel = None
 
+        if self.playing:
+            self.stopSound()
+
+        self.soundSec = 0
+        self.updateSoundMarker()
+
         self.loadSound(self.filelist[self.fileidx])
         self.setWindowTitle("Audio Tagger " + os.path.basename(self.filelist[self.fileidx]))
 
+        self.scrollView.horizontalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderAction.SliderToMinimum)
 
         print(self.filelist[self.fileidx])
 
@@ -270,7 +277,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         if self.fileidx < len(self.filelist) - 1:
             self.fileidx += 1
-            self.updateWavfile()
+            self.resetView()
 
     def loadPrev(self): 
         canProceed = self.checkIfSavingNecessary()
@@ -279,7 +286,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         if self.fileidx > 1:
             self.fileidx -= 1
-            self.updateWavfile()
+            self.resetView()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
