@@ -319,7 +319,7 @@ class AudioTagger(QtGui.QMainWindow):
         if labelFolder is None:
             labelFolder = dialog.getExistingDirectory(self,
                         "Open Folder with label files",
-                        "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
+                        os.path.split(wavFolder)[0])
 
         self.labelfolder = labelFolder
 
