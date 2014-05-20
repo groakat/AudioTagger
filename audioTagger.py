@@ -6,6 +6,7 @@ import scipy.misc as spmisc
 import numpy as np
 import pylab as plt
 import json
+import datetime as dt
 
 import qimage2ndarray as qim2np
 
@@ -62,7 +63,8 @@ class AudioTagger(QtGui.QMainWindow):
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
         self.s4p = S4P.Sound4Python()
-        self.soundPos = 0
+        self.soundSec = 0
+        self.lastMarkerUpdate = None
         self.soundMarker = None
         self.seekingSound = False
         self.playing = False
@@ -176,7 +178,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
-        markerPos = self.soundPos * 100 # multiply by step-size in SpecGen()
+        markerPos = self.soundSec * 100 # multiply by step-size in SpecGen()
         line = QtCore.QLineF(markerPos, 0, markerPos, self.specHeight)
         if not self.soundMarker:
             penCol = QtGui.QColor()
@@ -197,15 +199,21 @@ class AudioTagger(QtGui.QMainWindow):
             self.seekingSound = True
 
     def updateSoundPosition(self):
-        self.soundPos += 0.1
-        self.ui.lbl_audio_position.setText("position: {0}".format(self.soundPos))
+        currentTime = dt.datetime.now()
+        increment = (currentTime - self.lastMarkerUpdate).total_seconds()
+        self.soundSec += increment
+        self.lastMarkerUpdate = currentTime
+
+        self.ui.lbl_audio_position.setText("position: {0}".format(self.soundSec))
         self.updateSoundMarker()
 
     def playSound(self):
         self.playing = True
         self.ui.pb_play.setText("pause")
         self.s4p.play()
-        self.soundPos = self.s4p.sec
+        self.soundSec = self.s4p.sec
+        
+        self.lastMarkerUpdate = dt.datetime.now()
         self.soundTimer.start(100)
 
     def pauseSound(self):
@@ -229,7 +237,7 @@ class AudioTagger(QtGui.QMainWindow):
     def seekSound(self, graphicsPos):
         sec = graphicsPos / 100.0
         self.s4p.seek(sec)
-        self.soundPos = sec
+        self.soundSec = sec
         self.updateSoundMarker()
         self.seekingSound = False
 
