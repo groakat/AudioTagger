@@ -164,6 +164,8 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.saveSceneRects)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Delete), 
                         self, self.deteleActiveLabel)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), 
+                        self, self.abortSceneRectangle)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_1),
                         self, self.selectLabel0)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_2),
@@ -174,6 +176,8 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.playPauseSound)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
                         self, self.activateSoundSeeking)
+
+
 
 
     ################### SOUND STUFF #######################
@@ -212,7 +216,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_play.setText("pause")
         self.s4p.play()
         self.soundSec = self.s4p.sec
-        
+
         self.lastMarkerUpdate = dt.datetime.now()
         self.soundTimer.start(100)
 
@@ -432,6 +436,11 @@ class AudioTagger(QtGui.QMainWindow):
             h = y - orgY
             self.labelRect.setRect(orgX,
                                    orgY, w, h)
+
+    def abortSceneRectangle(self):
+        self.overviewScene.removeItem(self.labelRect)
+        self.labelRect = None
+        self.mouseEventFilter.isRectangleOpen = False
 
     def clearSceneRects(self):        
         if self.labelRect:
