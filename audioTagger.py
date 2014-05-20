@@ -231,6 +231,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.s4p.seek(sec)
         self.soundPos = sec
         self.updateSoundMarker()
+        self.seekingSound = False
 
     def loadSound(self, wavfile):
         self.s4p.loadWav(wavfile)
