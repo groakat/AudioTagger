@@ -26,7 +26,8 @@ labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\A
 
 labelTypes = ["bat",
               "bird",
-              "plane"]
+              "plane",
+              "car"]
 
 labelColours = []
 
@@ -40,6 +41,10 @@ labelColours += [penCol]
 
 penCol = QtGui.QColor()
 penCol.setRgb(255, 0, 127)
+labelColours += [penCol]
+
+penCol = QtGui.QColor()
+penCol.setRgb(255, 0, 255)
 labelColours += [penCol]
 
 
@@ -284,7 +289,7 @@ class AudioTagger(QtGui.QMainWindow):
         if not canProceed:
             return
 
-        if self.fileidx > 1:
+        if self.fileidx > 0:
             self.fileidx -= 1
             self.resetView()
 
@@ -356,7 +361,8 @@ class AudioTagger(QtGui.QMainWindow):
         return X
 
     def updateLabelWithSpectrogram(self, spec):
-        clrSpec = np.uint8(plt.cm.jet(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
+        # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
+        clrSpec = np.uint8(plt.cm.gist_stern(spec / 18.0) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
