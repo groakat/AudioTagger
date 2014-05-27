@@ -95,13 +95,16 @@ class AudioTagger(QtGui.QMainWindow):
         # self.installEventFilter(self.KeyboardFilter)
         self.defineShortcuts()
 
-        if labelTypes is None:
-            self.labelTypes = dict()
-        else:
-            self.labelTypes = labelTypes
         self.labelRects = []
         self.rectClasses = dict()
         self.labelRect = None
+
+        if labelTypes is None:
+            self.loadSettingsLocal()
+            self.contentChanged = False
+        else:
+            self.labelTypes = labelTypes
+
         self.configureElements()
         self.connectElements()
         self.show()
@@ -192,6 +195,15 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.activateSoundSeeking)
 
 
+    def saveSettingsLocal(self):
+        settings = QtCore.QSettings()
+        settings.setValue("labelTypes", self.labelTypes)
+
+
+    def loadSettingsLocal(self):
+        settings = QtCore.QSettings()
+        self.labelTypes = settings.value("labelTypes")
+        self.updateLabelTypes([self.labelTypes])
 
 
     ################### SOUND STUFF #######################
@@ -356,6 +368,8 @@ class AudioTagger(QtGui.QMainWindow):
 
         # update all label colours by forcing a redraw
         self.convertRectsToLabelRects(self.convertLabelRectsToRects())
+
+        self.saveSettingsLocal()
 
     ####################### SPECTROGRAM #############################
     def SpecGen(self, filepath):
@@ -685,8 +699,13 @@ class KeyboardFilterObj(QtCore.QObject):
 
 if __name__ == "__main__":    
     app = QtGui.QApplication(sys.argv)
-    
-    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
+
+    app.setOrganizationName("UCL")
+    app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
+    app.setApplicationName("audioTagger")
+
+    # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
+    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
     
     sys.exit(app.exec_())
 
