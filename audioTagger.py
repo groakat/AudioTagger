@@ -14,7 +14,7 @@ from PySide import QtCore, QtGui
 
 from sound4python import sound4python as S4P
 
-from AudioTagger.gui import Ui_MainWindow
+from AudioTagger.gui_auto import Ui_MainWindow
 
 #
 audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
@@ -24,28 +24,30 @@ labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\A
 # audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
 # labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
-labelTypes = ["bat",
-              "bird",
-              "plane",
-              "car"]
+# labelTypes = ["bat",
+#               "bird",
+#               "plane",
+#               "car"]
+#
+# labelColours = []
 
-labelColours = []
+labelTypes = dict()
 
 penCol = QtGui.QColor()
 penCol.setRgb(96, 96, 96)
-labelColours += [penCol]
+labelTypes["bat"] = penCol
 
 penCol = QtGui.QColor()
 penCol.setRgb(51, 51, 255)
-labelColours += [penCol]
+labelTypes["bird"] = penCol
 
 penCol = QtGui.QColor()
 penCol.setRgb(255, 0, 127)
-labelColours += [penCol]
+labelTypes["plane"] = penCol
 
 penCol = QtGui.QColor()
 penCol.setRgb(255, 0, 255)
-labelColours += [penCol]
+labelTypes["car"] = penCol
 
 
 class AudioTagger(QtGui.QMainWindow):
@@ -97,7 +99,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.configureElements()
         self.connectElements()
         self.show()
-        self.ui.cb_labelType.addItems(labelTypes)
+        self.ui.cb_labelType.addItems(labelTypes.keys())
 
         self.openFolder(basefolder, labelfolder)
 
@@ -431,9 +433,9 @@ class AudioTagger(QtGui.QMainWindow):
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
 
-        penCol = labelColours[self.ui.cb_labelType.currentIndex()]
+        penCol = labelTypes[self.ui.cb_labelType.currentText()]
         self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
-        self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentIndex()
+        self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
 
 
     def closeSceneRectangle(self):
@@ -486,8 +488,7 @@ class AudioTagger(QtGui.QMainWindow):
             rect = QtCore.QRectF(*r)#Ask Peter again what the * means
 
             try:
-                classIdx = labelTypes.index(c)
-                penCol = labelColours[classIdx]
+                penCol = labelTypes[c]
             except ValueError:                
                 msgBox = QtGui.QMessageBox()
                 msgBox.setText("File contained undefined class")
@@ -500,7 +501,7 @@ class AudioTagger(QtGui.QMainWindow):
 
             labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
             self.labelRects += [labelRect]
-            self.rectClasses[labelRect] = labelTypes.index(c)
+            self.rectClasses[labelRect] = c
 
 
     def saveSceneRects(self, fileAppendix="-sceneRect"):
@@ -550,7 +551,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def toogleTo(self, activeLabel, centerOnActiveLabel=True):
         if self.activeLabel is not None:
-            penCol = labelColours[self.rectClasses[self.labelRects[self.activeLabel]]]
+            penCol = labelTypes[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
             self.labelRects[self.activeLabel].setPen(pen)
 
