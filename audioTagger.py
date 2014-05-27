@@ -12,7 +12,7 @@ import qimage2ndarray as qim2np
 
 from PySide import QtCore, QtGui
 
-import sound4python as S4P
+from sound4python import sound4python as S4P
 
 from AudioTagger.gui import Ui_MainWindow
 
