@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Mon May 19 17:08:05 2014
+# Created: Tue May 27 20:19:01 2014
 #      by: pyside-uic 0.2.14 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -125,7 +125,11 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.actionOpen_folder = QtGui.QAction(MainWindow)
         self.actionOpen_folder.setObjectName("actionOpen_folder")
+        self.actionClass_settings = QtGui.QAction(MainWindow)
+        self.actionClass_settings.setObjectName("actionClass_settings")
         self.menuFile.addAction(self.actionOpen_folder)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionClass_settings)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -148,4 +152,5 @@ class Ui_MainWindow(object):
         self.cb_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))
 

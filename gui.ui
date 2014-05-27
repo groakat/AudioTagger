@@ -198,6 +198,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_folder"/>
+    <addaction name="separator"/>
+    <addaction name="actionClass_settings"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -205,6 +207,11 @@
   <action name="actionOpen_folder">
    <property name="text">
     <string>Open folder</string>
+   </property>
+  </action>
+  <action name="actionClass_settings">
+   <property name="text">
+    <string>Class settings</string>
    </property>
   </action>
  </widget>

@@ -7,6 +7,7 @@ import numpy as np
 import pylab as plt
 import json
 import datetime as dt
+from collections import OrderedDict
 
 import qimage2ndarray as qim2np
 
@@ -15,6 +16,7 @@ from PySide import QtCore, QtGui
 from sound4python import sound4python as S4P
 
 from AudioTagger.gui_auto import Ui_MainWindow
+import AudioTagger.classDialog as CD
 
 #
 audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
@@ -31,7 +33,7 @@ labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\A
 #
 # labelColours = []
 
-labelTypes = dict()
+labelTypes = OrderedDict()
 
 penCol = QtGui.QColor()
 penCol.setRgb(96, 96, 96)
@@ -52,7 +54,7 @@ labelTypes["car"] = penCol
 
 class AudioTagger(QtGui.QMainWindow):
     
-    def __init__(self, basefolder, labelfolder):      
+    def __init__(self, basefolder, labelfolder,labelTypes=None):
         super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
@@ -93,13 +95,17 @@ class AudioTagger(QtGui.QMainWindow):
         # self.installEventFilter(self.KeyboardFilter)
         self.defineShortcuts()
 
+        if labelTypes is None:
+            self.labelTypes = dict()
+        else:
+            self.labelTypes = labelTypes
         self.labelRects = []
         self.rectClasses = dict()
         self.labelRect = None
         self.configureElements()
         self.connectElements()
         self.show()
-        self.ui.cb_labelType.addItems(labelTypes.keys())
+        self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
         self.openFolder(basefolder, labelfolder)
 
@@ -123,6 +129,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
+        self.ui.actionClass_settings.triggered.connect(self.openClassSettings)
         self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
@@ -337,6 +344,19 @@ class AudioTagger(QtGui.QMainWindow):
         self.loadNext()
 
 
+    def openClassSettings(self):
+        cd = CD.ClassDialog(self, self.labelTypes)
+        cd.settingsSig.connect(self.updateLabelTypes)
+        cd.show()
+
+
+    def updateLabelTypes(self, labelTypes):
+        print "updateLabelTypes"
+        self.labelTypes = labelTypes[0]
+
+        # update all label colours by forcing a redraw
+        self.convertRectsToLabelRects(self.convertLabelRectsToRects())
+
     ####################### SPECTROGRAM #############################
     def SpecGen(self, filepath):
         sr,x = scipy.io.wavfile.read(filepath)
@@ -433,7 +453,7 @@ class AudioTagger(QtGui.QMainWindow):
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
 
-        penCol = labelTypes[self.ui.cb_labelType.currentText()]
+        penCol = self.labelTypes[self.ui.cb_labelType.currentText()]
         self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
         self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
 
@@ -476,7 +496,7 @@ class AudioTagger(QtGui.QMainWindow):
         for labelRect in self.labelRects:
             r = labelRect.rect()
             rect = [r.x(), r.y(), r.width(), r.height()]
-            c = labelTypes[self.rectClasses[labelRect]]
+            c = self.rectClasses[labelRect]
             labels += [[rect, c]]
 
         return labels
@@ -488,7 +508,7 @@ class AudioTagger(QtGui.QMainWindow):
             rect = QtCore.QRectF(*r)#Ask Peter again what the * means
 
             try:
-                penCol = labelTypes[c]
+                penCol = self.labelTypes[c]
             except ValueError:                
                 msgBox = QtGui.QMessageBox()
                 msgBox.setText("File contained undefined class")
@@ -551,7 +571,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def toogleTo(self, activeLabel, centerOnActiveLabel=True):
         if self.activeLabel is not None:
-            penCol = labelTypes[self.rectClasses[self.labelRects[self.activeLabel]]]
+            penCol = self.labelTypes[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
             self.labelRects[self.activeLabel].setPen(pen)
 
@@ -666,7 +686,7 @@ class KeyboardFilterObj(QtCore.QObject):
 if __name__ == "__main__":    
     app = QtGui.QApplication(sys.argv)
     
-    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder)
+    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     
     sys.exit(app.exec_())
 

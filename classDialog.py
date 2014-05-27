@@ -1,11 +1,13 @@
 __author__ = 'peter'
 
 import sys
+from collections import OrderedDict
 from PySide import QtCore, QtGui
 from AudioTagger.classDialog_auto import Ui_Dialog
 import copy
 
 class ClassDialog(QtGui.QDialog):
+    settingsSig = QtCore.Signal(list)
 
     def __init__(self, parent, classSettings=None):
         super(ClassDialog, self).__init__(parent)
@@ -24,11 +26,15 @@ class ClassDialog(QtGui.QDialog):
         if classSettings is None:
             self.createNewLabelSet()
         else:
+            while(True):
+                try:
+                    k, c = classSettings.popitem(last=False)
+                    self.classSettings += [[k, c]]
+                    self.createNewLabelSet(k, c)
+                except KeyError:
+                    break
 
-            for k, c in classSettings.items():
-                self.classSettings += [[k, c]]
-                self.createNewLabelSet(k, c)
-
+    def getSettings(self):
         self.show()
 
 
@@ -99,7 +105,12 @@ class ClassDialog(QtGui.QDialog):
                 self.createNewLabelSet()
 
     def sendSettings(self):
-        print self.classSettings
+        classSettings = OrderedDict()
+        for k ,c in self.classSettings:
+            classSettings[k] = c
+        print(classSettings)
+        self.settingsSig.emit([classSettings])
+        # settingsSig
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
@@ -107,8 +118,3 @@ if __name__ == "__main__":
     w = ClassDialog(None)
 
     sys.exit(app.exec_())
-
-
-
-        # QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), Dialog.accept)
-        # QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), Dialog.reject)
