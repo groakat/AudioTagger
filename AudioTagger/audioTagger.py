@@ -755,7 +755,7 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
 
-    app.setOrganizationName("UCLA")
+    app.setOrganizationName("UCL")
     app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
     app.setApplicationName("audioTagger")
 
