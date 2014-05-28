@@ -17,8 +17,8 @@ from sound4python import sound4python as S4P
 from AudioTagger.gui import Ui_MainWindow
 
 #
-audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
-labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
+audiofolder = "C:\Users\ucfaalf\Documents\Projects\Acoustic Analysis\Sample size selection\Random files\SM2+"
+labelfolder = "C:\Users\ucfaalf\Documents\Projects\Acoustic Analysis\Sample size selection\Random files\Labels"
 
 
 # audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
