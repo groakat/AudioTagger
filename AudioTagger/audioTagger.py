@@ -26,30 +26,6 @@ labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\A
 # audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
 # labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
-# labelTypes = ["bat",
-#               "bird",
-#               "plane",
-#               "car"]
-#
-# labelColours = []
-
-labelTypes = OrderedDict()
-
-penCol = QtGui.QColor()
-penCol.setRgb(96, 96, 96)
-labelTypes["bat"] = penCol
-
-penCol = QtGui.QColor()
-penCol.setRgb(51, 51, 255)
-labelTypes["bird"] = penCol
-
-penCol = QtGui.QColor()
-penCol.setRgb(255, 0, 127)
-labelTypes["plane"] = penCol
-
-penCol = QtGui.QColor()
-penCol.setRgb(255, 0, 255)
-labelTypes["car"] = penCol
 
 
 class AudioTagger(QtGui.QMainWindow):
@@ -63,6 +39,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.scrollEvent = ScrollAreaEventFilter(self)
         self.mouseEventFilter = MouseFilterObj(self)
         self.KeyboardFilter = KeyboardFilterObj(self)
+        self.shortcuts = []
 
         self.horzScrollbarValue = 0
 
@@ -183,12 +160,6 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.deteleActiveLabel)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), 
                         self, self.abortSceneRectangle)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_1),
-                        self, self.selectLabel0)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_2),
-                        self, self.selectLabel1)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
-                        self, self.selectLabel2)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space),
                         self, self.playPauseSound)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
@@ -196,15 +167,84 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def saveSettingsLocal(self):
+        print "saveSettingsLocal"
+        labelTypes = []
+        while True:
+            try:
+                k, c = self.labelTypes.popitem(last=False)
+                labelTypes += [[k, c]]
+            except KeyError:
+                break
+
+        for k, c in labelTypes:
+            self.labelTypes[k] = c
+
+        keySequences = []
+        for shortcut in self.shortcuts:
+            keySequences += [shortcut.key()]
+
+
         settings = QtCore.QSettings()
-        settings.setValue("labelTypes", self.labelTypes)
+        settings.setValue("labelTypes", labelTypes)
+        settings.setValue("keySequences", keySequences)
+
 
 
     def loadSettingsLocal(self):
         settings = QtCore.QSettings()
-        self.labelTypes = settings.value("labelTypes")
-        self.updateLabelTypes([self.labelTypes])
+        lt = settings.value("labelTypes")
+        self.labelTypes = OrderedDict()
+        for k, i in lt:
+            self.labelTypes[k] = i
 
+
+        keySequences = settings.value("keySequences")
+        self.updateSettings([self.labelTypes, keySequences])
+
+
+    def openClassSettings(self):
+        cd = CD.ClassDialog(self, self.labelTypes, [x.key() for x in self.shortcuts])
+        cd.settingsSig.connect(self.updateSettings)
+        cd.show()
+
+    def changeIdx(self, i):
+        print(i)
+        self.ui.cb_labelType.setCurrentIndex(i)
+
+
+    def addKeySequenceToShortcuts(self, keySequence, idx):
+        func = lambda: self.changeIdx(idx)
+        self.shortcuts += [QtGui.QShortcut(keySequence, self, func)]
+
+    def updateShortcuts(self, keySequences):
+        for idx, keySequence in enumerate(keySequences):
+            if idx < len(self.shortcuts) - 1:
+                self.shortcuts[idx].setKey(keySequence)
+            else:
+                self.addKeySequenceToShortcuts(keySequence, idx)
+
+            self.shortcuts[idx].setEnabled(True)
+
+        # disable all shortcuts that do not have corresponding class
+        if len(keySequences) < len(self.shortcuts):
+            for i in range(len(keySequences), len(self.shortcuts)):
+                self.shortcuts[i].setEnabled(False)
+
+
+    def updateSettings(self, settings):
+        self.labelTypes = settings[0]
+        keySequences = settings[1]
+
+        cc = self.contentChanged
+        # update all label colours by forcing a redraw
+        self.convertRectsToLabelRects(self.convertLabelRectsToRects())
+        self.contentChanged = cc
+
+        # update keyboard shortcuts
+        self.updateShortcuts(keySequences)
+
+
+        self.saveSettingsLocal()
 
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
@@ -343,6 +383,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.filelist = self.getListOfWavefiles(wavFolder)
 
         if labelFolder is None:
+            dialog = QtGui.QFileDialog()
+            dialog.setFileMode(QtGui.QFileDialog.Directory)
             labelFolder = dialog.getExistingDirectory(self,
                         "Open Folder with label files",
                         os.path.split(wavFolder)[0])
@@ -355,21 +397,6 @@ class AudioTagger(QtGui.QMainWindow):
         self.fileidx = -1
         self.loadNext()
 
-
-    def openClassSettings(self):
-        cd = CD.ClassDialog(self, self.labelTypes)
-        cd.settingsSig.connect(self.updateLabelTypes)
-        cd.show()
-
-
-    def updateLabelTypes(self, labelTypes):
-        print "updateLabelTypes"
-        self.labelTypes = labelTypes[0]
-
-        # update all label colours by forcing a redraw
-        self.convertRectsToLabelRects(self.convertLabelRectsToRects())
-
-        self.saveSettingsLocal()
 
     ####################### SPECTROGRAM #############################
     def SpecGen(self, filepath):
@@ -697,7 +724,25 @@ class KeyboardFilterObj(QtCore.QObject):
                 print event.key()
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
+    labelTypes = OrderedDict()
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(96, 96, 96)
+    labelTypes["bat"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(51, 51, 255)
+    labelTypes["bird"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(255, 0, 127)
+    labelTypes["plane"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(255, 0, 255)
+    labelTypes["car"] = penCol
+
     app = QtGui.QApplication(sys.argv)
 
     app.setOrganizationName("UCL")
