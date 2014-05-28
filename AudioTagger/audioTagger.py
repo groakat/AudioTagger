@@ -75,6 +75,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelRects = []
         self.rectClasses = dict()
         self.labelRect = None
+        self.labelTypes = OrderedDict
 
         if labelTypes is None:
             self.loadSettingsLocal()
@@ -85,7 +86,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.configureElements()
         self.connectElements()
         self.show()
-        self.ui.cb_labelType.addItems(self.labelTypes.keys())
+        # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
         self.openFolder(basefolder, labelfolder)
 
@@ -193,6 +194,10 @@ class AudioTagger(QtGui.QMainWindow):
     def loadSettingsLocal(self):
         settings = QtCore.QSettings()
         lt = settings.value("labelTypes")
+        if lt is None:
+            # no settings found
+            return
+
         self.labelTypes = OrderedDict()
         for k, i in lt:
             self.labelTypes[k] = i
@@ -239,6 +244,11 @@ class AudioTagger(QtGui.QMainWindow):
         # update all label colours by forcing a redraw
         self.convertRectsToLabelRects(self.convertLabelRectsToRects())
         self.contentChanged = cc
+
+        for i in range(self.ui.cb_labelType.count()):
+            self.ui.cb_labelType.removeItem(0)
+
+        self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
         # update keyboard shortcuts
         self.updateShortcuts(keySequences)
@@ -745,7 +755,7 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
 
-    app.setOrganizationName("UCL")
+    app.setOrganizationName("UCLA")
     app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
     app.setApplicationName("audioTagger")
 
