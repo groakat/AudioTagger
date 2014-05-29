@@ -25,6 +25,7 @@ class ClassDialog(QtGui.QDialog):
 
         self.classSettings = []
         if classSettings is not None:
+            classSettings = copy.copy(classSettings)
             while(True):
                 try:
                     k, c = classSettings.popitem(last=False)
