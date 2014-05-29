@@ -75,7 +75,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelRects = []
         self.rectClasses = dict()
         self.labelRect = None
-        self.labelTypes = OrderedDict
+        self.labelTypes = OrderedDict()
 
         if labelTypes is None:
             self.loadSettingsLocal()
