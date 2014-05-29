@@ -19,8 +19,6 @@ from AudioTagger.gui_auto import Ui_MainWindow
 import AudioTagger.classDialog as CD
 
 #
-audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
-labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
 
 
 # audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
@@ -30,7 +28,7 @@ labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\A
 
 class AudioTagger(QtGui.QMainWindow):
     
-    def __init__(self, basefolder, labelfolder,labelTypes=None):
+    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None):
         super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
@@ -43,8 +41,15 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.horzScrollbarValue = 0
 
-        self.basefolder = basefolder
-        self.labelfolder = labelfolder
+        self.loadFoldersLocal()
+
+        if basefolder:
+            self.basefolder = basefolder
+
+        if labelfolder:
+            self.labelfolder = labelfolder
+
+
         self.fileidx = 0
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
@@ -88,7 +93,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.show()
         # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
-        self.openFolder(basefolder, labelfolder)
+        self.openFolder(self.basefolder, self.labelfolder)
 
     ######################## GUI STUFF ########################
     def resizeEvent(self, event):
@@ -190,6 +195,17 @@ class AudioTagger(QtGui.QMainWindow):
         settings.setValue("keySequences", keySequences)
 
 
+    def saveFoldersLocal(self):
+        print "saveFoldersLocal"
+
+        print self.basefolder
+        print self.labelfolder
+
+        settings = QtCore.QSettings()
+        settings.setValue("basefolder", self.basefolder)
+        settings.setValue("labelfolder", self.labelfolder)
+
+
 
     def loadSettingsLocal(self):
         settings = QtCore.QSettings()
@@ -206,6 +222,16 @@ class AudioTagger(QtGui.QMainWindow):
         keySequences = settings.value("keySequences")
         self.updateSettings([self.labelTypes, keySequences])
 
+
+    def loadFoldersLocal(self):
+        print "loadFoldersLocal"
+        settings = QtCore.QSettings()
+        self.basefolder = settings.value("basefolder")
+        self.labelfolder = settings.value("labelfolder")
+
+
+        print self.basefolder
+        print self.labelfolder
 
     def openClassSettings(self):
         cd = CD.ClassDialog(self, self.labelTypes, [x.key() for x in self.shortcuts])
@@ -391,6 +417,7 @@ class AudioTagger(QtGui.QMainWindow):
                         "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
 
         self.filelist = self.getListOfWavefiles(wavFolder)
+        self.basefolder = wavFolder
 
         if labelFolder is None:
             dialog = QtGui.QFileDialog()
@@ -403,6 +430,8 @@ class AudioTagger(QtGui.QMainWindow):
 
         if len(self.filelist) == 0:
             return
+
+        self.saveFoldersLocal()
 
         self.fileidx = -1
         self.loadNext()
@@ -753,6 +782,10 @@ if __name__ == "__main__":
     penCol.setRgb(255, 0, 255)
     labelTypes["car"] = penCol
 
+    audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+    labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
+
+
     app = QtGui.QApplication(sys.argv)
 
     app.setOrganizationName("UCL")
@@ -760,7 +793,8 @@ if __name__ == "__main__":
     app.setApplicationName("audioTagger")
 
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
-    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
+    # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
+    w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None)
     
     sys.exit(app.exec_())
 
