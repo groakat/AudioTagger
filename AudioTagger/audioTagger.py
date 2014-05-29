@@ -196,11 +196,6 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def saveFoldersLocal(self):
-        print "saveFoldersLocal"
-
-        print self.basefolder
-        print self.labelfolder
-
         settings = QtCore.QSettings()
         settings.setValue("basefolder", self.basefolder)
         settings.setValue("labelfolder", self.labelfolder)
@@ -224,14 +219,10 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def loadFoldersLocal(self):
-        print "loadFoldersLocal"
         settings = QtCore.QSettings()
         self.basefolder = settings.value("basefolder")
         self.labelfolder = settings.value("labelfolder")
 
-
-        print self.basefolder
-        print self.labelfolder
 
     def openClassSettings(self):
         cd = CD.ClassDialog(self, self.labelTypes, [x.key() for x in self.shortcuts])
