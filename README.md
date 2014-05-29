@@ -10,7 +10,7 @@ Dependencies
 The program should run with an anaconda installation plus the following dependencies:
 
 
-My fork of `sound4python`:
+My fork of `sound4python` https://github.com/groakat/sound4python (please follow the readme of this project to install sox):
 
     pip install https://github.com/groakat/sound4python/archive/master.zip
 
