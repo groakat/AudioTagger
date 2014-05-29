@@ -137,6 +137,11 @@ class ClassDialog(QtGui.QDialog):
 
 
 class KeySequenceEdit(QtGui.QLineEdit):
+    """
+    This class is mainly inspired by
+    http://stackoverflow.com/a/6665017
+
+    """
 
     def __init__(self, keySequence, *args):
         super(KeySequenceEdit, self).__init__(*args)
