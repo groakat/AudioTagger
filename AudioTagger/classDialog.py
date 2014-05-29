@@ -33,7 +33,7 @@ class ClassDialog(QtGui.QDialog):
                 except KeyError:
                     break
 
-        if keySequences is not None:
+        if keySequences:
             for i, edit in enumerate(zip(*self.classUIs)[4]):
                 if i < len(keySequences):
                     edit.setKeySequence(keySequences[i])
