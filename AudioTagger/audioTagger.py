@@ -17,6 +17,10 @@ from sound4python import sound4python as S4P
 
 from AudioTagger.gui_auto import Ui_MainWindow
 import AudioTagger.classDialog as CD
+import matplotlib.colors as col
+import matplotlib.cm as cm
+from matplotlib.colors import LinearSegmentedColormap
+#import AudioTagger.colourMap as CM
 
 #
 
@@ -81,7 +85,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.rectClasses = dict()
         self.labelRect = None
         self.labelTypes = OrderedDict()
-        self.cm = CM.getColourMap()
+        self.cm = getColourMap()
 
         if labelTypes is None:
             self.loadSettingsLocal()
@@ -453,6 +457,24 @@ class AudioTagger(QtGui.QMainWindow):
             X[i,:] = np.log(np.abs(z[:nfft/2]))
         
         return X
+
+    def getColourMap(self, spec):
+        cdict = {'red': ((0.000, 0.000, 0.000),
+            (0.0547, 1.000, 1.000), 
+            (0.250, 0.027, 0.250), 
+            (0.900, 1.000, 1.000), 
+            (1.000, 1.000, 1.000)),
+        'green': ((0, 0, 0),
+            (0.900, 1.000, 1.000),
+            (1, 1, 1)),
+        'blue': ((0.000, 0.000, 0.000), 
+            (0.400, 1.000, 1.000),
+            (0.735, 0.000, 0.000), 
+            (0.900, 1.000, 1.000), 
+            (1.000, 1.000, 1.000))}
+
+        cmap = col.LinearSegmentedColormap('SpecCM', cdict)
+        return cmap
 
     def updateLabelWithSpectrogram(self, spec):
         # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
