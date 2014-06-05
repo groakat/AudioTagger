@@ -1,12 +1,13 @@
 
 import matplotlib.colors as col
 import matplotlib.cm as cm
+from matplotlib.colors import LinearSegmentedColormap
 
-def register_own_cmap():
+def getColourMap():
 	"""
 	Function that defines colormap to be used to view spectrograms.
 
-	Register_own_cmap code from http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps.
+	getColourMap code from http://wiki.scipy.org/Cookbook/Matplotlib/Show_colormaps.
 
 	Colormap colours are adapted from gist_stern colormap in Matplotlib library, available: 
 
@@ -27,6 +28,7 @@ def register_own_cmap():
 
 	Spectro_Colormap = col.LinearSegmentedColormap('spec_colormap', cdict)
 	cm.register_cmap(name='specColormap',cmap=Spectro_Colormap)
+	return cmap
 
 if __name__ == "__main__":
-    register_own_cmap()
+    getColourMap()

@@ -81,6 +81,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.rectClasses = dict()
         self.labelRect = None
         self.labelTypes = OrderedDict()
+        self.cm = CM.getColourMap()
 
         if labelTypes is None:
             self.loadSettingsLocal()
@@ -455,7 +456,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def updateLabelWithSpectrogram(self, spec):
         # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
-        clrSpec = np.uint8(plt.cm.gist_stern(spec / 18.0) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
+        clrSpec = np.uint8(self.cm(spec / 18.0) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
