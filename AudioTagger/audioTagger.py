@@ -67,6 +67,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.specWidth = 6000
         self.contentChanged = False
         self.isDeletingRects = False
+        self.yscale = 1
 
         self.bgImg = None
         self.cropRect = None
@@ -100,6 +101,13 @@ class AudioTagger(QtGui.QMainWindow):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
+    def resize(self, *size):
+        super(AudioTagger, self).resize(*size)
+        try:
+            self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+        except AttributeError:
+            pass
+
     def closeEvent(self, event):
         canProceed = self.checkIfSavingNecessary()
         if canProceed:
@@ -122,6 +130,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
+        # self.ui.gw_overview.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Ignored)
         self.scrollView.setFixedHeight(self.specHeight + 30)
 
         w = self.specWidth
@@ -143,6 +152,21 @@ class AudioTagger(QtGui.QMainWindow):
         self.scrollView.setMouseTracking(True)
 
         self.overviewScene.installEventFilter(self.mouseEventFilter)
+
+    def zoom(self, yscale):
+        self.yscale *= yscale
+        self.scrollView.scale(1, yscale)
+        overviewSize = self.ui.gw_overview.size()
+        overviewHeight = self.ui.gw_overview.height()
+        self.scrollView.setFixedHeight(self.specHeight * self.yscale + 30)
+
+        print overviewSize
+        self.ui.gw_overview.resize(overviewSize)
+        self.ui.gw_overview.updateGeometry()
+        # self.ui.gw_overview.setMinimumHeight(40)
+        # self.updateGeometry()
+        self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+        # self.resize(self.minimumSizeHint())
 
     def selectLabel0(self):
         self.ui.cb_labelType.setCurrentIndex(0)
@@ -170,6 +194,13 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.playPauseSound)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
                         self, self.activateSoundSeeking)
+
+        zoomIn = lambda: None is self.zoom(2.0)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Plus),
+                        self, zoomIn)
+        zoomOut = lambda: None is self.zoom(0.5)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Minus),
+                        self, zoomOut)
 
 
     def saveSettingsLocal(self):
@@ -347,6 +378,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.clearSceneRects()
         self.updateSpecLabel()
         self.loadSceneRects()
+        self.zoom(1)
+
         self.activeLabel = None
 
         if self.playing:
