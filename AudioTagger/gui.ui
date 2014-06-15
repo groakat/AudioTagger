@@ -112,6 +112,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_audio">
           <property name="sizePolicy">
@@ -175,6 +178,19 @@
          <widget class="QCheckBox" name="cb_followSound">
           <property name="text">
            <string>follow sound</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lbl_zoom">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string> Vertical zoom: 1x</string>
           </property>
          </widget>
         </item>

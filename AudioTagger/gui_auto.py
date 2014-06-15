@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Tue May 27 21:35:00 2014
-#      by: pyside-uic 0.2.14 running on PySide 1.1.2
+# Created: Sun Jun 15 18:13:10 2014
+#      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -72,6 +72,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.cb_labelType)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.lbl_audio = QtGui.QLabel(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -111,6 +112,14 @@ class Ui_MainWindow(object):
         self.cb_followSound = QtGui.QCheckBox(self.centralwidget)
         self.cb_followSound.setObjectName("cb_followSound")
         self.horizontalLayout_4.addWidget(self.cb_followSound)
+        self.lbl_zoom = QtGui.QLabel(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lbl_zoom.sizePolicy().hasHeightForWidth())
+        self.lbl_zoom.setSizePolicy(sizePolicy)
+        self.lbl_zoom.setObjectName("lbl_zoom")
+        self.horizontalLayout_4.addWidget(self.lbl_zoom)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -150,6 +159,7 @@ class Ui_MainWindow(object):
         self.pb_seek.setText(QtGui.QApplication.translate("MainWindow", "seek", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_zoom.setText(QtGui.QApplication.translate("MainWindow", " Vertical zoom: 1x", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))

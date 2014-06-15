@@ -101,19 +101,19 @@ class AudioTagger(QtGui.QMainWindow):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
 
-    def resize(self, *size):
-        super(AudioTagger, self).resize(*size)
-        try:
-            self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
-        except AttributeError:
-            pass
-
-    def closeEvent(self, event):
-        canProceed = self.checkIfSavingNecessary()
-        if canProceed:
-            event.accept()
-        else:
-            event.ignore()
+    # def resize(self, *size):
+    #     super(AudioTagger, self).resize(*size)
+    #     try:
+    #         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+    #     except AttributeError:
+    #         pass
+    #
+    # def closeEvent(self, event):
+    #     canProceed = self.checkIfSavingNecessary()
+    #     if canProceed:
+    #         event.accept()
+    #     else:
+    #         event.ignore()
 
     def connectElements(self):
         self.ui.pb_next.clicked.connect(self.loadNext)
@@ -147,6 +147,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.ui.gw_overview.setScene(self.overviewScene)
         self.ui.gw_overview.setMouseTracking(True)
+        self.ui.gw_overview.setMaximumHeight(200)
 
         self.scrollView.setScene(self.overviewScene)
         self.scrollView.setMouseTracking(True)
@@ -157,16 +158,17 @@ class AudioTagger(QtGui.QMainWindow):
         self.yscale *= yscale
         self.scrollView.scale(1, yscale)
         overviewSize = self.ui.gw_overview.size()
-        overviewHeight = self.ui.gw_overview.height()
         self.scrollView.setFixedHeight(self.specHeight * self.yscale + 30)
 
-        print overviewSize
         self.ui.gw_overview.resize(overviewSize)
         self.ui.gw_overview.updateGeometry()
-        # self.ui.gw_overview.setMinimumHeight(40)
-        # self.updateGeometry()
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
-        # self.resize(self.minimumSizeHint())
+
+        self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
+        size = self.minimumSizeHint()
+        size.setHeight(size.height() + 100)
+        self.resize(size)
+        self.updateGeometry()
 
     def selectLabel0(self):
         self.ui.cb_labelType.setCurrentIndex(0)
