@@ -37,12 +37,13 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.scrollEvent = ScrollAreaEventFilter(self)
+        self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
         self.mouseEventFilter = MouseFilterObj(self)
         self.KeyboardFilter = KeyboardFilterObj(self)
         self.shortcuts = []
 
         self.horzScrollbarValue = 0
+        self.vertScrollbarValue = 0
 
         self.loadFoldersLocal()
 
@@ -78,6 +79,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.setupGraphicsView()
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        self.scrollView.verticalScrollBar().installEventFilter(self.scrollEvent)
         # self.installEventFilter(self.KeyboardFilter)
         self.defineShortcuts()
 
@@ -525,13 +527,16 @@ class AudioTagger(QtGui.QMainWindow):
 
     #################### VISUALZATION/ INTERACTION (GRAPHICVIEWS) #######################
     def getZoomBoundingBox(self):
-        left = self.scrollView.horizontalScrollBar().value()
+        x = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
-        right = float(areaWidth)
-        self.addRectToOverview(left, right)
+        w = float(areaWidth)
 
-    def addRectToOverview(self, left, right):
-        rect = QtCore.QRectF(left, 0, right, self.specHeight)
+        y = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
+        h = self.specHeight * (1.0 / self.yscale)
+        self.addRectToOverview(x, y, w, h)
+
+    def addRectToOverview(self, x, y, w, h):
+        rect = QtCore.QRectF(x, y, w, h)
         if not self.cropRect:
             penCol = QtGui.QColor()
             penCol.setRgb(0, 0, 0)
@@ -544,12 +549,12 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def scrollbarSlideEvent(self):
-        if self.horzScrollbarValue != \
-        self.scrollView.horizontalScrollBar().value():
-            self.horzScrollbarValue = \
-                self.scrollView.horizontalScrollBar().value()
+        self.horzScrollbarValue = self.scrollView.horizontalScrollBar().value()
+        self.vertScrollbarValue = self.scrollView.verticalScrollBar().value()
 
-            self.getZoomBoundingBox()
+        self.getZoomBoundingBox()
+
+
 
     def clickInScene(self, x, y):
         if self.seekingSound:
@@ -743,14 +748,14 @@ class AudioTagger(QtGui.QMainWindow):
 
 
 class ScrollAreaEventFilter(QtCore.QObject):#Ask Peter why these are seperate classes?
-    def __init__(self, parent):
+    def __init__(self, callback):
         QtCore.QObject.__init__(self)
-        self.parent = parent
+        self.callback = callback
         
     def eventFilter(self, obj, event):
         if type(event) == QtCore.QDynamicPropertyChangeEvent \
         or event.type() == QtCore.QEvent.Type.MouseMove:
-            self.parent.scrollbarSlideEvent()
+            self.callback()
 
 
 class MouseFilterObj(QtCore.QObject):#And this one
