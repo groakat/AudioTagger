@@ -539,7 +539,7 @@ class AudioTagger(QtGui.QMainWindow):
         rect = QtCore.QRectF(x, y, w, h)
         if not self.cropRect:
             penCol = QtGui.QColor()
-            penCol.setRgb(0, 0, 0)
+            penCol.setRgb(255, 255, 255)
             self.cropRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
         else:
             self.cropRect.setRect(rect)
