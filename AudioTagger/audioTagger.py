@@ -76,6 +76,11 @@ class AudioTagger(QtGui.QMainWindow):
         self.bgImg = None
         self.cropRect = None
         self.scrollView = self.ui.scrollView
+        self.viewHeight = 0
+        self.viewX = 0
+        self.viewY = 0
+        self.viewWidth = 0
+        self.viewHeight = 0
         self.setupGraphicsView()
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
@@ -106,7 +111,7 @@ class AudioTagger(QtGui.QMainWindow):
     def resizeEvent(self, event):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
-        self.getZoomBoundingBox()
+        self.setZoomBoundingBox()
 
     # def resize(self, *size):
     #     super(AudioTagger, self).resize(*size)
@@ -166,7 +171,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.scrollView.scale(1, yscale)
 
         self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
-        self.getZoomBoundingBox()
+        self.setZoomBoundingBox()
 
     def selectLabel0(self):
         self.ui.cb_labelType.setCurrentIndex(0)
@@ -319,9 +324,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.update()
 
         if self.ui.cb_followSound.isChecked():
-            self.scrollView.centerOn(self.soundMarker)
-            self.getZoomBoundingBox()
-
+            self.scrollView.centerOn(markerPos, self.viewCenter.y())#self.soundMarker)
+            self.setZoomBoundingBox(False)
 
     def activateSoundSeeking(self):
         if not self.playing:
@@ -514,21 +518,25 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     #################### VISUALZATION/ INTERACTION (GRAPHICVIEWS) #######################
-    def getZoomBoundingBox(self):
-        x = self.scrollView.horizontalScrollBar().value()
+    def setZoomBoundingBox(self, updateCenter=True):
+        self.viewX = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
-        w = float(areaWidth)
+        self.viewWidth = float(areaWidth)
 
-        y = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
-        viewHeight = self.scrollView.height()
-        if viewHeight > self.specHeight:
-            viewHeight = self.specHeight
+        self.viewY = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
 
-        h = viewHeight * (1.0 / self.yscale)
-        self.addRectToOverview(x, y, w, h)
+        self.viewHeight = self.scrollView.height()
+        if self.viewHeight > self.specHeight:
+            self.viewHeight = self.specHeight
 
-    def addRectToOverview(self, x, y, w, h):
-        rect = QtCore.QRectF(x, y, w, h)
+        self.viewHeight *= (1.0 / self.yscale)
+        if updateCenter:
+            self.viewCenter =  self.scrollView.mapToScene(self.scrollView.viewport().rect().center())
+
+        self.updateZoomBoundingBox()
+
+    def updateZoomBoundingBox(self):
+        rect = QtCore.QRectF(self.viewX, self.viewY, self.viewWidth, self.viewHeight)
         if not self.cropRect:
             penCol = QtGui.QColor()
             penCol.setRgb(255, 255, 255)
@@ -544,7 +552,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.horzScrollbarValue = self.scrollView.horizontalScrollBar().value()
         self.vertScrollbarValue = self.scrollView.verticalScrollBar().value()
 
-        self.getZoomBoundingBox()
+        self.setZoomBoundingBox()
 
 
 
