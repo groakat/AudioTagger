@@ -106,6 +106,7 @@ class AudioTagger(QtGui.QMainWindow):
     def resizeEvent(self, event):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+        self.getZoomBoundingBox()
 
     # def resize(self, *size):
     #     super(AudioTagger, self).resize(*size)
@@ -163,23 +164,9 @@ class AudioTagger(QtGui.QMainWindow):
     def zoom(self, yscale):
         self.yscale *= yscale
         self.scrollView.scale(1, yscale)
-        # overviewSize = self.ui.gw_overview.size()
-        # scrollViewHeight = self.scrollView.height()
-        # newScrollViewHeight = self.specHeight * self.yscale + 30
-        # windowSize = self.minimumSizeHint()
-        # windowSize.setHeight(windowSize.height() + newScrollViewHeight \
-        #                      - scrollViewHeight + 100)
-        #
-        # print newScrollViewHeight, scrollViewHeight, windowSize.height(),  newScrollViewHeight \
-        #                      - scrollViewHeight, windowSize.height() + (newScrollViewHeight \
-        #                      - scrollViewHeight + 100)
-        # self.scrollView.setFixedHeight(newScrollViewHeight)
-        # self.updateGeometry()
-        #
-        #
+
         self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
-        # self.resize(windowSize)
-        # self.updateGeometry()
+        self.getZoomBoundingBox()
 
     def selectLabel0(self):
         self.ui.cb_labelType.setCurrentIndex(0)
@@ -532,7 +519,11 @@ class AudioTagger(QtGui.QMainWindow):
         w = float(areaWidth)
 
         y = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
-        h = self.specHeight * (1.0 / self.yscale)
+        viewHeight = self.scrollView.height()
+        if viewHeight > self.specHeight:
+            viewHeight = self.specHeight
+
+        h = viewHeight * (1.0 / self.yscale)
         self.addRectToOverview(x, y, w, h)
 
     def addRectToOverview(self, x, y, w, h):
