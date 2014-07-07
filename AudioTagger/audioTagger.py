@@ -320,6 +320,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         if self.ui.cb_followSound.isChecked():
             self.scrollView.centerOn(self.soundMarker)
+            self.getZoomBoundingBox()
 
 
     def activateSoundSeeking(self):
