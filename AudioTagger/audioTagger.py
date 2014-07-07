@@ -7,6 +7,7 @@ import numpy as np
 import pylab as plt
 import json
 import datetime as dt
+from collections import OrderedDict
 
 import qimage2ndarray as qim2np
 
@@ -14,56 +15,43 @@ from PySide import QtCore, QtGui
 
 from sound4python import sound4python as S4P
 
-from AudioTagger.gui import Ui_MainWindow
-
-#
-audiofolder = "C:\Users\ucfaalf\Documents\Projects\Acoustic Analysis\Sample size selection\Random files\SM2+"
-labelfolder = "C:\Users\ucfaalf\Documents\Projects\Acoustic Analysis\Sample size selection\Random files\Labels"
-
+from AudioTagger.gui_auto import Ui_MainWindow
+import AudioTagger.classDialog as CD
+import matplotlib.colors as col
+import matplotlib.cm as cm
+from matplotlib.colors import LinearSegmentedColormap
+import AudioTagger.colourMap as CM
 
 # audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
 # labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
-labelTypes = ["bat",
-              "bird",
-              "plane",
-              "car"]
-
-labelColours = []
-
-penCol = QtGui.QColor()
-penCol.setRgb(96, 96, 96)
-labelColours += [penCol]
-
-penCol = QtGui.QColor()
-penCol.setRgb(51, 51, 255)
-labelColours += [penCol]
-
-penCol = QtGui.QColor()
-penCol.setRgb(255, 0, 127)
-labelColours += [penCol]
-
-penCol = QtGui.QColor()
-penCol.setRgb(255, 0, 255)
-labelColours += [penCol]
 
 
 class AudioTagger(QtGui.QMainWindow):
     
-    def __init__(self, basefolder, labelfolder):      
+    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None):
         super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.scrollEvent = ScrollAreaEventFilter(self)
+        self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
         self.mouseEventFilter = MouseFilterObj(self)
         self.KeyboardFilter = KeyboardFilterObj(self)
+        self.shortcuts = []
 
         self.horzScrollbarValue = 0
+        self.vertScrollbarValue = 0
 
-        self.basefolder = basefolder
-        self.labelfolder = labelfolder
+        self.loadFoldersLocal()
+
+        if basefolder:
+            self.basefolder = basefolder
+
+        if labelfolder:
+            self.labelfolder = labelfolder
+
+
         self.fileidx = 0
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
@@ -81,37 +69,61 @@ class AudioTagger(QtGui.QMainWindow):
         self.specWidth = 6000
         self.contentChanged = False
         self.isDeletingRects = False
+        self.yscale = 1
 
         self.bgImg = None
         self.cropRect = None
         self.scrollView = self.ui.scrollView
+        self.viewHeight = 0
+        self.viewX = 0
+        self.viewY = 0
+        self.viewWidth = 0
+        self.viewHeight = 0
         self.setupGraphicsView()
 
         self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        self.scrollView.verticalScrollBar().installEventFilter(self.scrollEvent)
         # self.installEventFilter(self.KeyboardFilter)
         self.defineShortcuts()
 
         self.labelRects = []
         self.rectClasses = dict()
         self.labelRect = None
+        self.labelTypes = OrderedDict()
+        self.cm = CM.getColourMap()
+
+        if labelTypes is None:
+            self.loadSettingsLocal()
+            self.contentChanged = False
+        else:
+            self.labelTypes = labelTypes
+
         self.configureElements()
         self.connectElements()
         self.show()
-        self.ui.cb_labelType.addItems(labelTypes)
+        # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
-        self.openFolder(basefolder, labelfolder)
+        self.openFolder(self.basefolder, self.labelfolder)
 
     ######################## GUI STUFF ########################
     def resizeEvent(self, event):
         super(AudioTagger, self).resizeEvent(event)
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+        self.setZoomBoundingBox()
 
-    def closeEvent(self, event):
-        canProceed = self.checkIfSavingNecessary()
-        if canProceed:
-            event.accept()
-        else:
-            event.ignore()
+    # def resize(self, *size):
+    #     super(AudioTagger, self).resize(*size)
+    #     try:
+    #         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
+    #     except AttributeError:
+    #         pass
+    #
+    # def closeEvent(self, event):
+    #     canProceed = self.checkIfSavingNecessary()
+    #     if canProceed:
+    #         event.accept()
+    #     else:
+    #         event.ignore()
 
     def connectElements(self):
         self.ui.pb_next.clicked.connect(self.loadNext)
@@ -121,13 +133,15 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
+        self.ui.actionClass_settings.triggered.connect(self.openClassSettings)
         self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
-        self.scrollView.setFixedHeight(self.specHeight + 30)
+        # self.ui.gw_overview.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Ignored)
+        # self.scrollView.setFixedHeight(self.specHeight + 30)
 
         w = self.specWidth
         h = self.specHeight
@@ -143,11 +157,19 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.ui.gw_overview.setScene(self.overviewScene)
         self.ui.gw_overview.setMouseTracking(True)
+        self.ui.gw_overview.setFixedHeight(100)
 
         self.scrollView.setScene(self.overviewScene)
         self.scrollView.setMouseTracking(True)
 
         self.overviewScene.installEventFilter(self.mouseEventFilter)
+
+    def zoom(self, yscale):
+        self.yscale *= yscale
+        self.scrollView.scale(1, yscale)
+
+        self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
+        self.setZoomBoundingBox()
 
     def selectLabel0(self):
         self.ui.cb_labelType.setCurrentIndex(0)
@@ -171,19 +193,119 @@ class AudioTagger(QtGui.QMainWindow):
                         self, self.deteleActiveLabel)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape), 
                         self, self.abortSceneRectangle)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_1),
-                        self, self.selectLabel0)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_2),
-                        self, self.selectLabel1)
-        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_3),
-                        self, self.selectLabel2)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space),
                         self, self.playPauseSound)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_S),
                         self, self.activateSoundSeeking)
 
+        zoomIn = lambda: None is self.zoom(2.0)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Plus),
+                        self, zoomIn)
+        zoomOut = lambda: None is self.zoom(0.5)
+        QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Minus),
+                        self, zoomOut)
 
 
+    def saveSettingsLocal(self):
+        print "saveSettingsLocal"
+        labelTypes = []
+        while True:
+            try:
+                k, c = self.labelTypes.popitem(last=False)
+                labelTypes += [[k, c]]
+            except KeyError:
+                break
+
+        for k, c in labelTypes:
+            self.labelTypes[k] = c
+
+        keySequences = []
+        for shortcut in self.shortcuts:
+            keySequences += [shortcut.key()]
+
+
+        settings = QtCore.QSettings()
+        settings.setValue("labelTypes", labelTypes)
+        settings.setValue("keySequences", keySequences)
+
+
+    def saveFoldersLocal(self):
+        settings = QtCore.QSettings()
+        settings.setValue("basefolder", self.basefolder)
+        settings.setValue("labelfolder", self.labelfolder)
+
+
+
+    def loadSettingsLocal(self):
+        settings = QtCore.QSettings()
+        lt = settings.value("labelTypes")
+        if lt is None:
+            # no settings found
+            return
+
+        self.labelTypes = OrderedDict()
+        for k, i in lt:
+            self.labelTypes[k] = i
+
+
+        keySequences = settings.value("keySequences")
+        self.updateSettings([self.labelTypes, keySequences])
+
+
+    def loadFoldersLocal(self):
+        settings = QtCore.QSettings()
+        self.basefolder = settings.value("basefolder")
+        self.labelfolder = settings.value("labelfolder")
+
+
+    def openClassSettings(self):
+        cd = CD.ClassDialog(self, self.labelTypes, [x.key() for x in self.shortcuts])
+        cd.settingsSig.connect(self.updateSettings)
+        cd.show()
+
+    def changeIdx(self, i):
+        print(i)
+        self.ui.cb_labelType.setCurrentIndex(i)
+
+
+    def addKeySequenceToShortcuts(self, keySequence, idx):
+        func = lambda: self.changeIdx(idx)
+        self.shortcuts += [QtGui.QShortcut(keySequence, self, func)]
+
+    def updateShortcuts(self, keySequences):
+        for idx, keySequence in enumerate(keySequences):
+            if idx < len(self.shortcuts) - 1:
+                self.shortcuts[idx].setKey(keySequence)
+            else:
+                self.addKeySequenceToShortcuts(keySequence, idx)
+
+            self.shortcuts[idx].setEnabled(True)
+
+        # disable all shortcuts that do not have corresponding class
+        if len(keySequences) < len(self.shortcuts):
+            for i in range(len(keySequences), len(self.shortcuts)):
+                self.shortcuts[i].setEnabled(False)
+
+
+    def updateSettings(self, settings):
+        self.labelTypes = settings[0]
+        keySequences = settings[1]
+
+        cc = self.contentChanged
+        # update all label colours by forcing a redraw
+        self.convertRectsToLabelRects(self.convertLabelRectsToRects())
+        self.contentChanged = cc
+
+        for i in range(self.ui.cb_labelType.count()):
+            self.ui.cb_labelType.removeItem(0)
+
+        self.ui.cb_labelType.addItems(self.labelTypes.keys())
+
+        # update keyboard shortcuts
+        self.updateShortcuts(keySequences)
+
+
+        self.saveSettingsLocal()
 
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
@@ -200,8 +322,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.update()
 
         if self.ui.cb_followSound.isChecked():
-            self.scrollView.centerOn(self.soundMarker)
-
+            self.scrollView.centerOn(markerPos, self.viewCenter.y())#self.soundMarker)
+            self.setZoomBoundingBox(updateCenter=False)
 
     def activateSoundSeeking(self):
         if not self.playing:
@@ -259,6 +381,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.clearSceneRects()
         self.updateSpecLabel()
         self.loadSceneRects()
+        self.zoom(1)
+
         self.activeLabel = None
 
         if self.playing:
@@ -284,6 +408,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.fileidx += 1
             self.resetView()
 
+        self.setZoomBoundingBox()
+
     def loadPrev(self): 
         canProceed = self.checkIfSavingNecessary()
         if not canProceed:
@@ -292,6 +418,8 @@ class AudioTagger(QtGui.QMainWindow):
         if self.fileidx > 0:
             self.fileidx -= 1
             self.resetView()
+
+        self.setZoomBoundingBox()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
@@ -320,8 +448,11 @@ class AudioTagger(QtGui.QMainWindow):
                         "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/")
 
         self.filelist = self.getListOfWavefiles(wavFolder)
+        self.basefolder = wavFolder
 
         if labelFolder is None:
+            dialog = QtGui.QFileDialog()
+            dialog.setFileMode(QtGui.QFileDialog.Directory)
             labelFolder = dialog.getExistingDirectory(self,
                         "Open Folder with label files",
                         os.path.split(wavFolder)[0])
@@ -330,6 +461,8 @@ class AudioTagger(QtGui.QMainWindow):
 
         if len(self.filelist) == 0:
             return
+
+        self.saveFoldersLocal()
 
         self.fileidx = -1
         self.loadNext()
@@ -362,7 +495,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def updateLabelWithSpectrogram(self, spec):
         # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
-        clrSpec = np.uint8(plt.cm.gist_stern(spec / 18.0) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
+        clrSpec = np.uint8(self.cm(spec / 18.0) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
         clrSpec = np.rot90(clrSpec, 1)
         # clrSpec = spmisc.imresize(clrSpec, 0.25)
         qi = qim2np.array2qimage(clrSpec)#converting from numpy array to qt image
@@ -387,17 +520,28 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     #################### VISUALZATION/ INTERACTION (GRAPHICVIEWS) #######################
-    def getZoomBoundingBox(self):
-        left = self.scrollView.horizontalScrollBar().value()
+    def setZoomBoundingBox(self, updateCenter=True):
+        self.viewX = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
-        right = float(areaWidth)
-        self.addRectToOverview(left, right)
+        self.viewWidth = float(areaWidth)
 
-    def addRectToOverview(self, left, right):
-        rect = QtCore.QRectF(left, 0, right, self.specHeight)
+        self.viewY = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
+
+        self.viewHeight = self.scrollView.height()
+        if self.viewHeight > self.specHeight:
+            self.viewHeight = self.specHeight
+
+        self.viewHeight *= (1.0 / self.yscale)
+        if updateCenter:
+            self.viewCenter =  self.scrollView.mapToScene(self.scrollView.viewport().rect().center())
+
+        self.updateZoomBoundingBox()
+
+    def updateZoomBoundingBox(self):
+        rect = QtCore.QRectF(self.viewX, self.viewY, self.viewWidth, self.viewHeight)
         if not self.cropRect:
             penCol = QtGui.QColor()
-            penCol.setRgb(0, 0, 0)
+            penCol.setRgb(255, 255, 255)
             self.cropRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
         else:
             self.cropRect.setRect(rect)
@@ -407,12 +551,12 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def scrollbarSlideEvent(self):
-        if self.horzScrollbarValue != \
-        self.scrollView.horizontalScrollBar().value():
-            self.horzScrollbarValue = \
-                self.scrollView.horizontalScrollBar().value()
+        self.horzScrollbarValue = self.scrollView.horizontalScrollBar().value()
+        self.vertScrollbarValue = self.scrollView.verticalScrollBar().value()
 
-            self.getZoomBoundingBox()
+        self.setZoomBoundingBox()
+
+
 
     def clickInScene(self, x, y):
         if self.seekingSound:
@@ -431,9 +575,9 @@ class AudioTagger(QtGui.QMainWindow):
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
 
-        penCol = labelColours[self.ui.cb_labelType.currentIndex()]
+        penCol = self.labelTypes[self.ui.cb_labelType.currentText()]
         self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
-        self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentIndex()
+        self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
 
 
     def closeSceneRectangle(self):
@@ -474,7 +618,7 @@ class AudioTagger(QtGui.QMainWindow):
         for labelRect in self.labelRects:
             r = labelRect.rect()
             rect = [r.x(), r.y(), r.width(), r.height()]
-            c = labelTypes[self.rectClasses[labelRect]]
+            c = self.rectClasses[labelRect]
             labels += [[rect, c]]
 
         return labels
@@ -486,8 +630,7 @@ class AudioTagger(QtGui.QMainWindow):
             rect = QtCore.QRectF(*r)#Ask Peter again what the * means
 
             try:
-                classIdx = labelTypes.index(c)
-                penCol = labelColours[classIdx]
+                penCol = self.labelTypes[c]
             except ValueError:                
                 msgBox = QtGui.QMessageBox()
                 msgBox.setText("File contained undefined class")
@@ -500,7 +643,7 @@ class AudioTagger(QtGui.QMainWindow):
 
             labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
             self.labelRects += [labelRect]
-            self.rectClasses[labelRect] = labelTypes.index(c)
+            self.rectClasses[labelRect] = c
 
 
     def saveSceneRects(self, fileAppendix="-sceneRect"):
@@ -550,7 +693,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def toogleTo(self, activeLabel, centerOnActiveLabel=True):
         if self.activeLabel is not None:
-            penCol = labelColours[self.rectClasses[self.labelRects[self.activeLabel]]]
+            penCol = self.labelTypes[self.rectClasses[self.labelRects[self.activeLabel]]]
             pen = QtGui.QPen(penCol)
             self.labelRects[self.activeLabel].setPen(pen)
 
@@ -607,14 +750,14 @@ class AudioTagger(QtGui.QMainWindow):
 
 
 class ScrollAreaEventFilter(QtCore.QObject):#Ask Peter why these are seperate classes?
-    def __init__(self, parent):
+    def __init__(self, callback):
         QtCore.QObject.__init__(self)
-        self.parent = parent
+        self.callback = callback
         
     def eventFilter(self, obj, event):
         if type(event) == QtCore.QDynamicPropertyChangeEvent \
         or event.type() == QtCore.QEvent.Type.MouseMove:
-            self.parent.scrollbarSlideEvent()
+            self.callback()
 
 
 class MouseFilterObj(QtCore.QObject):#And this one
@@ -662,10 +805,38 @@ class KeyboardFilterObj(QtCore.QObject):
                 print event.key()
 
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
+    labelTypes = OrderedDict()
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(96, 96, 96)
+    labelTypes["bat"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(51, 51, 255)
+    labelTypes["bird"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(255, 0, 127)
+    labelTypes["plane"] = penCol
+
+    penCol = QtGui.QColor()
+    penCol.setRgb(255, 0, 255)
+    labelTypes["car"] = penCol
+
+    audiofolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files"
+    labelfolder = "C:\Users\ucfaalf\Dropbox\EngD\Projects\Acoustic analysis\Python\Amalgamated_Code\Snd_files_label"
+
+
     app = QtGui.QApplication(sys.argv)
-    
-    w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder)
+
+    app.setOrganizationName("UCL")
+    app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
+    app.setApplicationName("audioTagger")
+
+    # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
+    # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
+    w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None)
     
     sys.exit(app.exec_())
 

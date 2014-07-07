@@ -112,6 +112,9 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
         <item>
          <widget class="QLabel" name="lbl_audio">
           <property name="sizePolicy">
@@ -178,6 +181,19 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="lbl_zoom">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string> Vertical zoom: 1x</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -198,6 +214,8 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen_folder"/>
+    <addaction name="separator"/>
+    <addaction name="actionClass_settings"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -205,6 +223,11 @@
   <action name="actionOpen_folder">
    <property name="text">
     <string>Open folder</string>
+   </property>
+  </action>
+  <action name="actionClass_settings">
+   <property name="text">
+    <string>Class settings</string>
    </property>
   </action>
  </widget>
