@@ -325,7 +325,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         if self.ui.cb_followSound.isChecked():
             self.scrollView.centerOn(markerPos, self.viewCenter.y())#self.soundMarker)
-            self.setZoomBoundingBox(False)
+            self.setZoomBoundingBox(updateCenter=False)
 
     def activateSoundSeeking(self):
         if not self.playing:
@@ -410,6 +410,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.fileidx += 1
             self.resetView()
 
+        self.setZoomBoundingBox()
+
     def loadPrev(self): 
         canProceed = self.checkIfSavingNecessary()
         if not canProceed:
@@ -418,6 +420,8 @@ class AudioTagger(QtGui.QMainWindow):
         if self.fileidx > 0:
             self.fileidx -= 1
             self.resetView()
+
+        self.setZoomBoundingBox()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
