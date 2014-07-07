@@ -707,6 +707,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         if centerOnActiveLabel:
             self.scrollView.centerOn(self.labelRects[self.activeLabel])
+            self.setZoomBoundingBox()
 
 
     def toogleToItem(self, item, centerOnActiveLabel=True):
