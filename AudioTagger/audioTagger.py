@@ -103,7 +103,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.show()
         # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
-        self.openFolder(self.basefolder, self.labelfolder)
+        self.openFolder(self.basefolder, self.labelfolder, self.fileidx)
 
     ######################## GUI STUFF ########################
     def resizeEvent(self, event):
@@ -249,6 +249,10 @@ class AudioTagger(QtGui.QMainWindow):
             self.labelTypes[k] = i
 
         keySequences = settings.value("keySequences")
+        self.fileidx = int(settings.value("fileIdx"))
+        if not self.fileidx:
+            self.fileidx = 0
+
         self.updateSettings([self.labelTypes, keySequences])
 
 
@@ -308,7 +312,6 @@ class AudioTagger(QtGui.QMainWindow):
         self.saveSettingsLocal()
 
     def selectFromFilelist(self, idx):
-        print "selectFromFilelist"
         self.loadFileIdx(idx)
 
     ################### SOUND STUFF #######################
@@ -413,30 +416,35 @@ class AudioTagger(QtGui.QMainWindow):
             self.fileidx = idx
             self.resetView()
 
+
+        settings = QtCore.QSettings()
+        settings.setValue("fileIdx", self.fileidx)
         self.setZoomBoundingBox()
 
 
     def loadNext(self):
-        canProceed = self.checkIfSavingNecessary()
-        if not canProceed:
-            return
+        self.loadFileIdx(self.fileidx + 1)
+        # canProceed = self.checkIfSavingNecessary()
+        # if not canProceed:
+        #     return
+        #
+        # if self.fileidx < len(self.filelist) - 1:
+        #     self.fileidx += 1
+        #     self.resetView()
+        #
+        # self.setZoomBoundingBox()
 
-        if self.fileidx < len(self.filelist) - 1:
-            self.fileidx += 1
-            self.resetView()
-
-        self.setZoomBoundingBox()
-
-    def loadPrev(self): 
-        canProceed = self.checkIfSavingNecessary()
-        if not canProceed:
-            return
-
-        if self.fileidx > 0:
-            self.fileidx -= 1
-            self.resetView()
-
-        self.setZoomBoundingBox()
+    def loadPrev(self):
+        self.loadFileIdx(self.fileidx - 1)
+        # canProceed = self.checkIfSavingNecessary()
+        # if not canProceed:
+        #     return
+        #
+        # if self.fileidx > 0:
+        #     self.fileidx -= 1
+        #     self.resetView()
+        #
+        # self.setZoomBoundingBox()
 
     def updateSpecLabel(self):
         self.spec = self.SpecGen(self.filelist[self.fileidx])
@@ -456,7 +464,7 @@ class AudioTagger(QtGui.QMainWindow):
         return fileList
 
 
-    def openFolder(self, wavFolder=None, labelFolder=None):
+    def openFolder(self, wavFolder=None, labelFolder=None, fileIdx=None):
         if wavFolder is None:
             dialog = QtGui.QFileDialog()
             dialog.setFileMode(QtGui.QFileDialog.Directory)
@@ -484,8 +492,10 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.cb_file.clear()
         self.ui.cb_file.addItems(self.filelist)
 
-        self.fileidx = -1
-        self.loadNext()
+        if fileIdx:
+            self.loadFileIdx(fileIdx)
+        else:
+            self.loadFileIdx(0)
 
 
     ####################### SPECTROGRAM #############################
@@ -853,7 +863,7 @@ if __name__ == "__main__":
 
     app.setOrganizationName("UCL")
     app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
-    app.setApplicationName("audioTagger")
+    app.setApplicationName("audioTagger2")
 
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
