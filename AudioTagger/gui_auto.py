@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Sun Jun 15 18:13:10 2014
+# Created: Thu Jul 10 11:43:11 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -121,6 +121,17 @@ class Ui_MainWindow(object):
         self.lbl_zoom.setObjectName("lbl_zoom")
         self.horizontalLayout_4.addWidget(self.lbl_zoom)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.horizontalLayout_6 = QtGui.QHBoxLayout()
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.cb_file = QtGui.QComboBox(self.centralwidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cb_file.sizePolicy().hasHeightForWidth())
+        self.cb_file.setSizePolicy(sizePolicy)
+        self.cb_file.setObjectName("cb_file")
+        self.horizontalLayout_6.addWidget(self.cb_file)
+        self.verticalLayout.addLayout(self.horizontalLayout_6)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)

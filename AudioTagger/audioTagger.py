@@ -137,6 +137,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
+        self.ui.cb_file.activated.connect(self.selectFromFilelist)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -247,7 +248,6 @@ class AudioTagger(QtGui.QMainWindow):
         for k, i in lt:
             self.labelTypes[k] = i
 
-
         keySequences = settings.value("keySequences")
         self.updateSettings([self.labelTypes, keySequences])
 
@@ -263,13 +263,13 @@ class AudioTagger(QtGui.QMainWindow):
         cd.settingsSig.connect(self.updateSettings)
         cd.show()
 
-    def changeIdx(self, i):
+    def changeLabelIdx(self, i):
         print(i)
         self.ui.cb_labelType.setCurrentIndex(i)
 
 
     def addKeySequenceToShortcuts(self, keySequence, idx):
-        func = lambda: self.changeIdx(idx)
+        func = lambda: self.changeLabelIdx(idx)
         self.shortcuts += [QtGui.QShortcut(keySequence, self, func)]
 
     def updateShortcuts(self, keySequences):
@@ -306,6 +306,10 @@ class AudioTagger(QtGui.QMainWindow):
 
 
         self.saveSettingsLocal()
+
+    def selectFromFilelist(self, idx):
+        print "selectFromFilelist"
+        self.loadFileIdx(idx)
 
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
@@ -396,7 +400,20 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.scrollView.horizontalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderAction.SliderToMinimum)
 
+        self.ui.cb_file.setCurrentIndex(self.fileidx)
+
         print(self.filelist[self.fileidx])
+
+    def loadFileIdx(self, idx):
+        canProceed = self.checkIfSavingNecessary()
+        if not canProceed:
+            return
+
+        if idx > 0 and idx < len(self.filelist) - 1:
+            self.fileidx = idx
+            self.resetView()
+
+        self.setZoomBoundingBox()
 
 
     def loadNext(self):
@@ -463,6 +480,9 @@ class AudioTagger(QtGui.QMainWindow):
             return
 
         self.saveFoldersLocal()
+
+        self.ui.cb_file.clear()
+        self.ui.cb_file.addItems(self.filelist)
 
         self.fileidx = -1
         self.loadNext()
