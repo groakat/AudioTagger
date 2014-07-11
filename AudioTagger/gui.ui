@@ -230,6 +230,8 @@
     <addaction name="actionOpen_folder"/>
     <addaction name="separator"/>
     <addaction name="actionClass_settings"/>
+    <addaction name="actionExport_settings"/>
+    <addaction name="actionImport_settings"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -242,6 +244,16 @@
   <action name="actionClass_settings">
    <property name="text">
     <string>Class settings</string>
+   </property>
+  </action>
+  <action name="actionExport_settings">
+   <property name="text">
+    <string>export settings</string>
+   </property>
+  </action>
+  <action name="actionImport_settings">
+   <property name="text">
+    <string>import settings</string>
    </property>
   </action>
  </widget>

@@ -126,18 +126,22 @@ class AudioTagger(QtGui.QMainWindow):
     #         event.ignore()
 
     def connectElements(self):
+        ## GUI elements
         self.ui.pb_next.clicked.connect(self.loadNext)
         self.ui.pb_prev.clicked.connect(self.loadPrev)
         self.ui.pb_debug.clicked.connect(self.debug)
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
-        self.ui.actionOpen_folder.triggered.connect(self.openFolder)
-        self.ui.actionClass_settings.triggered.connect(self.openClassSettings)
         self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
         self.ui.cb_file.activated.connect(self.selectFromFilelist)
+
+        ## menu
+        self.ui.actionOpen_folder.triggered.connect(self.openFolder)
+        self.ui.actionClass_settings.triggered.connect(self.openClassSettings)
+        self.ui.actionExport_settings.triggered.connect(self.exportSettings)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -260,6 +264,24 @@ class AudioTagger(QtGui.QMainWindow):
         settings = QtCore.QSettings()
         self.basefolder = settings.value("basefolder")
         self.labelfolder = settings.value("labelfolder")
+
+
+    def exportSettings(self):
+        savePath = QtGui.QFileDialog().getSaveFileName(self,
+                                                       "Filename to save settings",
+                                                       ".",
+                                                       "Setting files (*.ini)")
+        saveSettings = QtCore.QSettings(savePath,
+                                        QtCore.QSettings.IniFormat)
+
+        settings = QtCore.QSettings()
+        settings.setFallbacksEnabled(False) # remove extra keys in Mac
+
+        for key in settings.allKeys():
+            saveSettings.setValue(key,
+                                  settings.value(key))
+
+
 
 
     def openClassSettings(self):
@@ -863,7 +885,7 @@ if __name__ == "__main__":
 
     app.setOrganizationName("UCL")
     app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
-    app.setApplicationName("audioTagger2")
+    app.setApplicationName("audioTagger")
 
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
