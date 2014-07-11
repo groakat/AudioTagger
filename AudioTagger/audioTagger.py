@@ -271,7 +271,7 @@ class AudioTagger(QtGui.QMainWindow):
                                                        "Filename to save settings",
                                                        ".",
                                                        "Setting files (*.ini)")
-        saveSettings = QtCore.QSettings(savePath,
+        saveSettings = QtCore.QSettings(savePath[0],
                                         QtCore.QSettings.IniFormat)
 
         settings = QtCore.QSettings()
