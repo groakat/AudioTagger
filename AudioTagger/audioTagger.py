@@ -580,8 +580,10 @@ class AudioTagger(QtGui.QMainWindow):
         self.viewY = self.scrollView.verticalScrollBar().value() * (1.0 / self.yscale)
 
         self.viewHeight = self.scrollView.height()
-        if self.viewHeight > self.specHeight:
-            self.viewHeight = self.specHeight
+        if self.viewHeight > self.specHeight  * self.yscale:
+            self.viewHeight = self.specHeight * self.yscale
+
+        # print self.scrollView.height()
 
         self.viewHeight *= (1.0 / self.yscale)
         if updateCenter:
