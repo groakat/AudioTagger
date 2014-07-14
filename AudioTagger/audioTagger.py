@@ -253,9 +253,11 @@ class AudioTagger(QtGui.QMainWindow):
             self.labelTypes[k] = i
 
         keySequences = settings.value("keySequences")
-        self.fileidx = int(settings.value("fileIdx"))
-        if not self.fileidx:
+
+        if settings.value("fileIdx") is None:
             self.fileidx = 0
+        else:
+            self.fileidx = int(settings.value("fileIdx"))
 
         self.updateSettings([self.labelTypes, keySequences])
 
