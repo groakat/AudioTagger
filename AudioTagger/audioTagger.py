@@ -38,6 +38,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
         self.mouseEventFilter = MouseFilterObj(self)
         self.KeyboardFilter = KeyboardFilterObj(self)
+        self.mouseInsideFilter = MouseInsideFilterObj(self.enterGV, self.leaveGV)
+        self.mouseInOverview = False
+
         self.shortcuts = []
 
         self.horzScrollbarValue = 0
@@ -72,7 +75,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.yscale = 1
 
         self.bgImg = None
-        self.cropRect = None
+        self.tracker = None
         self.scrollView = self.ui.scrollView
         self.viewHeight = 0
         self.viewX = 0
@@ -117,13 +120,13 @@ class AudioTagger(QtGui.QMainWindow):
     #         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
     #     except AttributeError:
     #         pass
-    #
-    # def closeEvent(self, event):
-    #     canProceed = self.checkIfSavingNecessary()
-    #     if canProceed:
-    #         event.accept()
-    #     else:
-    #         event.ignore()
+
+    def closeEvent(self, event):
+        canProceed = self.checkIfSavingNecessary()
+        if canProceed:
+            event.accept()
+        else:
+            event.ignore()
 
     def connectElements(self):
         ## GUI elements
@@ -163,6 +166,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.gw_overview.setScene(self.overviewScene)
         self.ui.gw_overview.setMouseTracking(True)
         self.ui.gw_overview.setFixedHeight(100)
+
+
+        self.ui.gw_overview.installEventFilter(self.mouseInsideFilter)
 
         self.scrollView.setScene(self.overviewScene)
         self.scrollView.setMouseTracking(True)
@@ -574,6 +580,16 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     #################### VISUALZATION/ INTERACTION (GRAPHICVIEWS) #######################
+    def leaveGV(self, gv):
+        if gv is self.ui.gw_overview:
+            self.mouseInOverview = False
+            self.tracker.deactivate()
+
+    def enterGV(self, gv):
+        if gv is self.ui.gw_overview:
+            self.mouseInOverview = True
+            self.tracker.activate()
+
     def setZoomBoundingBox(self, updateCenter=True):
         self.viewX = self.scrollView.horizontalScrollBar().value()
         areaWidth = self.scrollView.width()
@@ -593,14 +609,23 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.updateZoomBoundingBox()
 
+
+    def moveScrollViewSceneRect(self, pos):
+        self.scrollView.fitInView(self.tracker)
+        self.updateZoomBoundingBox()
+
+
     def updateZoomBoundingBox(self):
         rect = QtCore.QRectF(self.viewX, self.viewY, self.viewWidth, self.viewHeight)
-        if not self.cropRect:
+        if not self.tracker:
             penCol = QtGui.QColor()
             penCol.setRgb(255, 255, 255)
-            self.cropRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+            # self.tracker = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+            self.tracker = MovableGraphicsRectItem(self.moveScrollViewSceneRect)
+            self.tracker.setPen(penCol)
+            self.overviewScene.addItem(self.tracker)
         else:
-            self.cropRect.setRect(rect)
+            self.tracker.setRect(rect)
 
         self.ui.gw_overview.update()
         self.overviewScene.update()
@@ -624,7 +649,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.toogleToItem(self.overviewScene.itemAt(x, y), 
                               centerOnActiveLabel=False)
         else:
-            self.openSceneRectangle(x, y)
+            if not self.mouseInOverview:
+                self.openSceneRectangle(x, y)
 
     def openSceneRectangle(self, x, y):
         rect = QtCore.QRectF(x, y, 0, 0)
@@ -860,6 +886,49 @@ class KeyboardFilterObj(QtCore.QObject):
 
             else:
                 print event.key()
+
+
+
+# special GraphicsRectItem that is aware of its position and does something if the position is changed
+class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
+    """ from http://stackoverflow.com/a/24757931/2156909
+    """
+
+    def __init__(self, callback=None):
+        super(MovableGraphicsRectItem, self).__init__()
+        self.setFlags(QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+        self.callback = callback
+
+    def itemChange(self, change, value):
+        if change == QtGui.QGraphicsItem.ItemPositionChange and self.callback:
+            self.callback(value)
+
+        return super(MovableGraphicsRectItem, self).itemChange(change, value)
+
+    def activate(self):
+        self.setFlags(QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+
+    def deactivate(self):
+        self.setFlags(not QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setCursor(QtCore.Qt.ArrowCursor)
+
+
+class MouseInsideFilterObj(QtCore.QObject):#And this one
+    def __init__(self, enterCallback, leaveCallback):
+        QtCore.QObject.__init__(self)
+        self.enterCallback = enterCallback
+        self.leaveCallback = leaveCallback
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.Type.Enter:
+            self.enterCallback(obj)
+
+        if event.type() == QtCore.QEvent.Type.Leave:
+            self.leaveCallback(obj)
+
+        return False
 
 
 if __name__ == "__main__":
