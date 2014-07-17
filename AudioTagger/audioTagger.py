@@ -663,7 +663,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.toogleToItem(self.overviewScene.itemAt(x, y), 
                               centerOnActiveLabel=False)
         else:
-            if not self.mouseInOverview:
+            if not self.mouseInOverview \
+            or not self.tracker.active:
                 self.openSceneRectangle(x, y)
 
     def openSceneRectangle(self, x, y):
@@ -912,7 +913,17 @@ class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
         super(MovableGraphicsRectItem, self).__init__()
         self.setFlags(QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setCursor(QtCore.Qt.PointingHandCursor)
+        self.setAcceptHoverEvents(True)
+        self.active = False
+
         self.callback = callback
+
+    def hoverEnterEvent(self, event):
+        self.active = True
+
+    def hoverLeaveEvent(self, event):
+        self.active = False
+
 
     def itemChange(self, change, value):
         if change == QtGui.QGraphicsItem.ItemPositionChange and self.callback:
@@ -932,6 +943,7 @@ class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
 class MouseInsideFilterObj(QtCore.QObject):#And this one
     def __init__(self, enterCallback, leaveCallback):
         QtCore.QObject.__init__(self)
+
         self.enterCallback = enterCallback
         self.leaveCallback = leaveCallback
 
