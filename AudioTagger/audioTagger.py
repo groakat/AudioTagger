@@ -609,8 +609,6 @@ class AudioTagger(QtGui.QMainWindow):
         if self.viewHeight > self.specHeight  * self.yscale:
             self.viewHeight = self.specHeight * self.yscale
 
-        # print self.scrollView.height()
-
         self.viewHeight *= (1.0 / self.yscale)
         if updateCenter:
             self.viewCenter =  self.scrollView.mapToScene(self.scrollView.viewport().rect().center())
@@ -622,8 +620,6 @@ class AudioTagger(QtGui.QMainWindow):
         self.scrollingWithoutUser = True
         self.scrollView.fitInView(self.tracker)
         self.scrollingWithoutUser = False
-        self.updateZoomBoundingBox()
-
 
     def updateZoomBoundingBox(self):
         rect = QtCore.QRectF(self.viewX, self.viewY, self.viewWidth, self.viewHeight)
@@ -634,8 +630,10 @@ class AudioTagger(QtGui.QMainWindow):
             self.tracker = MovableGraphicsRectItem(self.moveScrollViewSceneRect)
             self.tracker.setPen(penCol)
             self.overviewScene.addItem(self.tracker)
-        else:
-            self.tracker.setRect(rect)
+
+
+        self.tracker.setPos(0,0)
+        self.tracker.setRect(rect)
 
         self.ui.gw_overview.update()
         self.overviewScene.update()
@@ -650,7 +648,6 @@ class AudioTagger(QtGui.QMainWindow):
 
         if tracking:
             self.setZoomBoundingBox()
-            print "scrollbarSlideEvent"
         else:
             self.setZoomBoundingBox(updateCenter=False)
 
