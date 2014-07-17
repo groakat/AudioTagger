@@ -35,7 +35,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
+        # self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
         self.mouseEventFilter = MouseFilterObj(self)
         self.KeyboardFilter = KeyboardFilterObj(self)
         self.mouseInsideFilter = MouseInsideFilterObj(self.enterGV, self.leaveGV)
@@ -67,6 +67,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
 
+
+        self.scrollingWithoutUser = False                   
+
         self.activeLabel = None
         self.specHeight = 360
         self.specWidth = 6000
@@ -84,8 +87,11 @@ class AudioTagger(QtGui.QMainWindow):
         self.viewHeight = 0
         self.setupGraphicsView()
 
-        self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
-        self.scrollView.verticalScrollBar().installEventFilter(self.scrollEvent)
+        # self.scrollView.horizontalScrollBar().installEventFilter(self.scrollEvent)
+        # self.scrollView.verticalScrollBar().installEventFilter(self.scrollEvent)
+
+        self.scrollView.horizontalScrollBar().valueChanged.connect(self.scrollbarSlideEvent)
+        self.scrollView.verticalScrollBar().valueChanged.connect(self.scrollbarSlideEvent)
         # self.installEventFilter(self.KeyboardFilter)
         self.defineShortcuts()
 
@@ -359,7 +365,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.update()
 
         if self.ui.cb_followSound.isChecked():
+            self.scrollingWithoutUser = True
             self.scrollView.centerOn(markerPos, self.viewCenter.y())#self.soundMarker)
+            self.scrollingWithoutUser = False
             self.setZoomBoundingBox(updateCenter=False)
 
     def activateSoundSeeking(self):
@@ -631,11 +639,15 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.update()
 
 
-    def scrollbarSlideEvent(self):
+    def scrollbarSlideEvent(self, tracking):
         self.horzScrollbarValue = self.scrollView.horizontalScrollBar().value()
         self.vertScrollbarValue = self.scrollView.verticalScrollBar().value()
 
-        self.setZoomBoundingBox()
+        if tracking and not self.scrollingWithoutUser:
+            self.setZoomBoundingBox()
+            print "scrollbarSlideEvent"
+        else:
+            self.setZoomBoundingBox(updateCenter=False)
 
 
 
