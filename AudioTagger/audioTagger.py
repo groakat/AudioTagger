@@ -619,7 +619,9 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def moveScrollViewSceneRect(self, pos):
+        self.scrollingWithoutUser = True
         self.scrollView.fitInView(self.tracker)
+        self.scrollingWithoutUser = False
         self.updateZoomBoundingBox()
 
 
@@ -640,10 +642,13 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def scrollbarSlideEvent(self, tracking):
+        if self.scrollingWithoutUser:
+            return
+
         self.horzScrollbarValue = self.scrollView.horizontalScrollBar().value()
         self.vertScrollbarValue = self.scrollView.verticalScrollBar().value()
 
-        if tracking and not self.scrollingWithoutUser:
+        if tracking:
             self.setZoomBoundingBox()
             print "scrollbarSlideEvent"
         else:
