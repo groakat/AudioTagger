@@ -17,13 +17,8 @@ from sound4python import sound4python as S4P
 
 from AudioTagger.gui_auto import Ui_MainWindow
 import AudioTagger.classDialog as CD
-import matplotlib.colors as col
-import matplotlib.cm as cm
-from matplotlib.colors import LinearSegmentedColormap
+import AudioTagger.modifyableRect as MR
 import AudioTagger.colourMap as CM
-
-# audiofolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/"
-# labelfolder = "/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label"
 
 
 
@@ -109,10 +104,13 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.configureElements()
         self.connectElements()
+        self.setupLabelMenu()
         self.show()
         # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
         self.openFolder(self.basefolder, self.labelfolder, self.fileidx)
+
+        self.tracker.deactivate()
 
     ######################## GUI STUFF ########################
     def resizeEvent(self, event):
@@ -141,11 +139,12 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_debug.clicked.connect(self.debug)
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
-        self.ui.pb_delete.clicked.connect(self.deteleActiveLabel)
+        # self.ui.pb_edit.clicked.connect(self.toggleEdit)
         self.ui.pb_play.clicked.connect(self.playPauseSound)
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
         self.ui.cb_file.activated.connect(self.selectFromFilelist)
+        self.ui.cb_create.toggled.connect(self.toogleCreateMode)
 
         ## menu
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
@@ -222,7 +221,51 @@ class AudioTagger(QtGui.QMainWindow):
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.CTRL + QtCore.Qt.Key_Minus),
                         self, zoomOut)
 
+    ##### MOVEABLE RECT
+    def setupLabelMenu(self):
+        wa = QtGui.QWidgetAction(self)
+        self.cle = MR.ContextLineEdit(wa, self)
+        self.cle.setModel(list(self.labelTypes))
 
+        wa.setDefaultWidget(self.cle)
+
+        self.menu = QtGui.QMenu(self)
+        delAction = self.menu.addAction("delete")
+        self.menu.addAction(wa)
+
+        delAction.triggered.connect(self.deleteLabel)
+        wa.triggered.connect(self.lineEditChanged)
+
+
+    def deleteLabel(self):
+        self.activeLabel = self.labelRects.index(self.lastLabelRectContext)
+        self.deteleActiveLabel()
+
+    def lineEditChanged(self):
+        print "lineEditChanged", self.lastLabelRectContext
+        self.menu.hide()
+        c = self.cle.text()
+
+        self.lastLabelRectContext.setColor(self.labelTypes[c])
+        self.lastLabelRectContext.setInfoString(c)
+        self.rectClasses[self.lastLabelRectContext] = c
+
+    def registerLastLabelRectContext(self, labelRect):
+        self.lastLabelRectContext = labelRect
+
+    def toogleCreateMode(self, createOn):
+        if createOn:
+            for lr in self.labelRects:
+                if lr:
+                    lr.deactivate()
+        else:
+            for lr in self.labelRects:
+                if lr:
+                    lr.activate()
+
+        self.toogleTo(None)
+
+    ##### SETTINGS
     def saveSettingsLocal(self):
         print "saveSettingsLocal"
         labelTypes = []
@@ -593,10 +636,20 @@ class AudioTagger(QtGui.QMainWindow):
             self.mouseInOverview = False
             self.tracker.deactivate()
 
+            if not  self.ui.cb_create.checkState() \
+                    == QtCore.Qt.CheckState.Checked:
+                for lr in self.labelRects:
+                    if lr:
+                        lr.activate()
+
     def enterGV(self, gv):
         if gv is self.ui.gw_overview:
             self.mouseInOverview = True
             self.tracker.activate()
+
+            for lr in self.labelRects:
+                if lr:
+                    lr.deactivate()
 
     def setZoomBoundingBox(self, updateCenter=True):
         self.viewX = self.scrollView.horizontalScrollBar().value()
@@ -658,14 +711,14 @@ class AudioTagger(QtGui.QMainWindow):
             self.mouseEventFilter.isRectangleOpen = False
             self.seekSound(x)
 
-        if not self.ui.cb_create.checkState():
-            self.mouseEventFilter.isRectangleOpen = False
-            self.toogleToItem(self.overviewScene.itemAt(x, y), 
-                              centerOnActiveLabel=False)
-        else:
+        if self.ui.cb_create.checkState() == QtCore.Qt.CheckState.Checked:
             if not self.mouseInOverview \
             or not self.tracker.active:
                 self.openSceneRectangle(x, y)
+        else:
+            self.mouseEventFilter.isRectangleOpen = False
+            self.toogleToItem(self.overviewScene.itemAt(x, y),
+                              centerOnActiveLabel=False)
 
     def openSceneRectangle(self, x, y):
         rect = QtCore.QRectF(x, y, 0, 0)
@@ -673,7 +726,17 @@ class AudioTagger(QtGui.QMainWindow):
             self.overviewScene.removeItem(self.labelRect)
 
         penCol = self.labelTypes[self.ui.cb_labelType.currentText()]
-        self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+        # self.labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+
+        self.labelRect = MR.LabelRectItem(self.menu,
+                                          self.registerLastLabelRectContext,
+                                          self.ui.cb_labelType.currentText())
+        self.labelRect.setRect(x, y, 0, 0)
+        self.labelRect.setColor(penCol)
+        self.labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
+        self.labelRect.setupInfoTextItem(fontSize=12)
+        self.overviewScene.addItem(self.labelRect)
+
         self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
 
 
@@ -713,6 +776,9 @@ class AudioTagger(QtGui.QMainWindow):
     def convertLabelRectsToRects(self):
         labels = []
         for labelRect in self.labelRects:
+            if not labelRect:
+                continue
+
             r = labelRect.rect()
             rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
@@ -738,7 +804,20 @@ class AudioTagger(QtGui.QMainWindow):
                 penCol = QtGui.QColor()
                 penCol.setRgb(0, 0, 200)
 
-            labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+            # labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
+
+
+
+            labelRect = MR.LabelRectItem(self.menu,
+                                              self.registerLastLabelRectContext,
+                                              c)
+            labelRect.setRect(*r)
+            labelRect.setColor(penCol)
+            labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
+            labelRect.setupInfoTextItem(fontSize=12)
+            self.overviewScene.addItem(labelRect)
+
+
             self.labelRects += [labelRect]
             self.rectClasses[labelRect] = c
 
@@ -749,8 +828,9 @@ class AudioTagger(QtGui.QMainWindow):
         if not os.path.exists(self.labelfolder):
             os.makedirs(self.labelfolder)
 
+        rects = self.convertLabelRectsToRects()
+
         with open(filename, "w") as f:
-            rects = self.convertLabelRectsToRects()
             json.dump(rects, f)
 
         self.contentChanged = False
@@ -795,6 +875,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.labelRects[self.activeLabel].setPen(pen)
 
         self.activeLabel = activeLabel
+        if activeLabel is None:
+            return
 
         print "toggling to", self.activeLabel, len(self.labelRects)
         penCol = QtGui.QColor()
