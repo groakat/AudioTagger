@@ -111,6 +111,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.openFolder(self.basefolder, self.labelfolder, self.fileidx)
 
         self.tracker.deactivate()
+        self.deactivateAllLabelRects()
 
     ######################## GUI STUFF ########################
     def resizeEvent(self, event):
@@ -249,21 +250,32 @@ class AudioTagger(QtGui.QMainWindow):
         self.lastLabelRectContext.setColor(self.labelTypes[c])
         self.lastLabelRectContext.setInfoString(c)
         self.rectClasses[self.lastLabelRectContext] = c
+        self.contentChanged = True
 
     def registerLastLabelRectContext(self, labelRect):
         self.lastLabelRectContext = labelRect
 
+    def deactivateAllLabelRects(self):
+        for lr in self.labelRects:
+            if lr:
+                lr.deactivate()
+
+    def activateAllLabelRects(self):
+        for lr in self.labelRects:
+            if lr:
+                lr.activate()
+
     def toogleCreateMode(self, createOn):
         if createOn:
-            for lr in self.labelRects:
-                if lr:
-                    lr.deactivate()
+            self.deactivateAllLabelRects()
         else:
-            for lr in self.labelRects:
-                if lr:
-                    lr.activate()
+            self.activateAllLabelRects()
 
         self.toogleTo(None)
+
+    def labelRectChangedSlot(self):
+        self.contentChanged = True
+
 
     ##### SETTINGS
     def saveSettingsLocal(self):
@@ -638,18 +650,13 @@ class AudioTagger(QtGui.QMainWindow):
 
             if not  self.ui.cb_create.checkState() \
                     == QtCore.Qt.CheckState.Checked:
-                for lr in self.labelRects:
-                    if lr:
-                        lr.activate()
+                self.activateAllLabelRects()
 
     def enterGV(self, gv):
         if gv is self.ui.gw_overview:
             self.mouseInOverview = True
             self.tracker.activate()
-
-            for lr in self.labelRects:
-                if lr:
-                    lr.deactivate()
+            self.deactivateAllLabelRects()
 
     def setZoomBoundingBox(self, updateCenter=True):
         self.viewX = self.scrollView.horizontalScrollBar().value()
@@ -730,11 +737,13 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.labelRect = MR.LabelRectItem(self.menu,
                                           self.registerLastLabelRectContext,
-                                          self.ui.cb_labelType.currentText())
+                                          self.ui.cb_labelType.currentText(),
+                                          rectChangedCallback=self.labelRectChangedSlot)
         self.labelRect.setRect(x, y, 0, 0)
         self.labelRect.setColor(penCol)
         self.labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
         self.labelRect.setupInfoTextItem(fontSize=12)
+        # self.labelRect.rectChangedSignal.connect(self.labelRectChangedSlot)
         self.overviewScene.addItem(self.labelRect)
 
         self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
@@ -809,12 +818,14 @@ class AudioTagger(QtGui.QMainWindow):
 
 
             labelRect = MR.LabelRectItem(self.menu,
-                                              self.registerLastLabelRectContext,
-                                              c)
+                                         self.registerLastLabelRectContext,
+                                         c,
+                                         rectChangedCallback=self.labelRectChangedSlot)
             labelRect.setRect(*r)
             labelRect.setColor(penCol)
             labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
             labelRect.setupInfoTextItem(fontSize=12)
+            # labelRect.rectChangedSignal.connect(self.labelRectChangedSlot)
             self.overviewScene.addItem(labelRect)
 
 
@@ -844,6 +855,9 @@ class AudioTagger(QtGui.QMainWindow):
                 self.convertRectsToLabelRects(rects)
 
         self.contentChanged = False
+
+        if self.ui.cb_create.checkState == QtCore.Qt.CheckState.Checked:
+            self.deactivateAllLabelRects()
 
     def createLabelFilename(self, fileAppendix="-sceneRect"):        
         currentWavFilename = self.filelist[self.fileidx]

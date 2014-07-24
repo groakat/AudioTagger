@@ -136,12 +136,13 @@ class ContextLineEdit(QtGui.QWidget):
 
 # special GraphicsRectItem that is aware of its position and does something if the position is changed
 class ResizeableGraphicsRectItem(QtGui.QGraphicsRectItem):
-    def __init__(self, callback=None, *args, **kwargs):
+    def __init__(self, callback=None, rectChangedCallback=None, *args, **kwargs):
         super(ResizeableGraphicsRectItem, self).__init__(*args, **kwargs)
         self.setFlags(QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setAcceptHoverEvents(True)
         self.setCursor(QtCore.Qt.PointingHandCursor)
         self.callback = callback
+        self.rectChangedCallback = rectChangedCallback
         self.resizeActivated = False
         self.activated = True
         self.resizeBox = None
@@ -430,6 +431,12 @@ class ResizeableGraphicsRectItem(QtGui.QGraphicsRectItem):
         dy = itemPos.y() - lastPos.y()
 
         self.resizeFunction(dx, dy)
+
+    def setRect(self, *args, **kwargs):
+        super(ResizeableGraphicsRectItem, self).setRect(*args, **kwargs)
+        if self.rectChangedCallback:
+            self.rectChangedCallback()
+
 
 class InfoRectItem(ResizeableGraphicsRectItem):
     def __init__(self, infoString=None, fontSize=None, callback=None, *args, **kwargs):
