@@ -96,6 +96,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelTypes = OrderedDict()
         self.cm = CM.getColourMap()
 
+        self.setupLabelMenu()
         if labelTypes is None:
             self.loadSettingsLocal()
             self.contentChanged = False
@@ -104,7 +105,6 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.configureElements()
         self.connectElements()
-        self.setupLabelMenu()
         self.show()
         # self.ui.cb_labelType.addItems(self.labelTypes.keys())
 
