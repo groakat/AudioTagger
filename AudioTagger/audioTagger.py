@@ -226,7 +226,7 @@ class AudioTagger(QtGui.QMainWindow):
     def setupLabelMenu(self):
         wa = QtGui.QWidgetAction(self)
         self.cle = MR.ContextLineEdit(wa, self)
-        self.cle.setModel(list(self.labelTypes))
+        self.cle.setModel(self.labelTypes.keys())
 
         wa.setDefaultWidget(self.cle)
 
@@ -395,6 +395,7 @@ class AudioTagger(QtGui.QMainWindow):
             self.ui.cb_labelType.removeItem(0)
 
         self.ui.cb_labelType.addItems(self.labelTypes.keys())
+        self.cle.setModel(self.labelTypes.keys())
 
         # update keyboard shortcuts
         self.updateShortcuts(keySequences)
