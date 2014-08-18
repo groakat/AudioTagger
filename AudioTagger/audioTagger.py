@@ -243,7 +243,6 @@ class AudioTagger(QtGui.QMainWindow):
         self.deteleActiveLabel()
 
     def lineEditChanged(self):
-        print "lineEditChanged", self.lastLabelRectContext
         self.menu.hide()
         c = self.cle.text()
 
@@ -506,7 +505,7 @@ class AudioTagger(QtGui.QMainWindow):
         if not canProceed:
             return
 
-        if idx > 0 and idx < len(self.filelist) - 1:
+        if idx >= 0 and idx < len(self.filelist):
             self.fileidx = idx
             self.resetView()
 
