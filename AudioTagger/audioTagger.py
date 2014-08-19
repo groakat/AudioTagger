@@ -61,6 +61,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.playing = False
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
+        self.soundSpeed = 1
+        self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
+        self.soundSpeedsInitIdx = 4
 
 
         self.scrollingWithoutUser = False                   
@@ -146,6 +149,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
         self.ui.cb_file.activated.connect(self.selectFromFilelist)
         self.ui.cb_create.toggled.connect(self.toogleCreateMode)
+        self.ui.cb_playbackSpeed.activated.connect(self.selectPlaybackSpeed)
 
         ## menu
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
@@ -161,6 +165,9 @@ class AudioTagger(QtGui.QMainWindow):
         h = self.specHeight
         self.sceneRect = QtCore.QRectF(0, 0, w,h)
         self.overviewScene.setSceneRect(self.sceneRect)
+
+        self.ui.cb_playbackSpeed.insertItems(0, [str(x) for x in self.soundSpeeds])
+        self.ui.cb_playbackSpeed.setCurrentIndex(self.soundSpeedsInitIdx)
 
 
     def setupGraphicsView(self):          
@@ -405,6 +412,9 @@ class AudioTagger(QtGui.QMainWindow):
     def selectFromFilelist(self, idx):
         self.loadFileIdx(idx)
 
+    def selectPlaybackSpeed(self, idx):
+        self.changePlaybackSpeed(float(self.ui.cb_playbackSpeed.itemText(idx)))
+
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
         markerPos = self.soundSec * 100 # multiply by step-size in SpecGen()
@@ -425,6 +435,10 @@ class AudioTagger(QtGui.QMainWindow):
             self.scrollingWithoutUser = False
             self.setZoomBoundingBox(updateCenter=False)
 
+    def changePlaybackSpeed(self, speed):
+        self.soundSpeed = speed
+        self.s4p.changePlaybackSpeed(self.soundSpeed)
+
     def activateSoundSeeking(self):
         if not self.playing:
             self.seekingSound = True
@@ -432,7 +446,7 @@ class AudioTagger(QtGui.QMainWindow):
     def updateSoundPosition(self):
         currentTime = dt.datetime.now()
         increment = (currentTime - self.lastMarkerUpdate).total_seconds()
-        self.soundSec += increment
+        self.soundSec += increment  * self.soundSpeed
         self.lastMarkerUpdate = currentTime
 
         self.ui.lbl_audio_position.setText("position: {0}".format(self.soundSec))
@@ -442,7 +456,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.playing = True
         self.ui.pb_play.setText("pause")
         self.s4p.play()
-        self.soundSec = self.s4p.sec
+        self.soundSec = self.s4p.seekSec
 
         self.lastMarkerUpdate = dt.datetime.now()
         self.soundTimer.start(100)

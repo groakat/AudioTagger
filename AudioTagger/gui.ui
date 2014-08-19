@@ -194,6 +194,19 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>playback speed:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cb_playbackSpeed"/>
+        </item>
        </layout>
       </item>
       <item>

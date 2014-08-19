@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created: Thu Jul 24 16:28:33 2014
+# Created: Mon Aug 18 16:39:45 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -120,6 +120,13 @@ class Ui_MainWindow(object):
         self.lbl_zoom.setSizePolicy(sizePolicy)
         self.lbl_zoom.setObjectName("lbl_zoom")
         self.horizontalLayout_4.addWidget(self.lbl_zoom)
+        self.label = QtGui.QLabel(self.centralwidget)
+        self.label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label.setObjectName("label")
+        self.horizontalLayout_4.addWidget(self.label)
+        self.cb_playbackSpeed = QtGui.QComboBox(self.centralwidget)
+        self.cb_playbackSpeed.setObjectName("cb_playbackSpeed")
+        self.horizontalLayout_4.addWidget(self.cb_playbackSpeed)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_6 = QtGui.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
@@ -177,6 +184,7 @@ class Ui_MainWindow(object):
         self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_zoom.setText(QtGui.QApplication.translate("MainWindow", " Vertical zoom: 1x", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "playback speed:", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
         self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))
