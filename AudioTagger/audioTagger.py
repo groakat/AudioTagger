@@ -63,7 +63,6 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundTimer.timeout.connect(self.updateSoundPosition)
         self.soundSpeed = 1
         self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
-        self.soundSpeedsInitIdx = 4
 
 
         self.scrollingWithoutUser = False                   
@@ -167,7 +166,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.overviewScene.setSceneRect(self.sceneRect)
 
         self.ui.cb_playbackSpeed.insertItems(0, [str(x) for x in self.soundSpeeds])
-        self.ui.cb_playbackSpeed.setCurrentIndex(self.soundSpeedsInitIdx)
+        self.ui.cb_playbackSpeed.setCurrentIndex(self.soundSpeeds.index(self.soundSpeed))
 
 
     def setupGraphicsView(self):          
@@ -488,6 +487,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def loadSound(self, wavfile):
         self.s4p.loadWav(wavfile)
+        self.s4p.changePlaybackSpeed(self.soundSpeed)
 
 
     ################### WAV FILE LOAD  ######################
