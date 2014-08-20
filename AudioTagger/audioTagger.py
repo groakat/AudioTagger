@@ -65,6 +65,10 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
 
 
+        self.audibleRange = True
+        self.specNStepMod = 0.01    # horizontal resolution of spectogram 0.01
+        self.specNWinMod = 0.03     # vertical resolution of spectogram 0.03
+
         self.scrollingWithoutUser = False                   
 
         self.activeLabel = None
@@ -116,10 +120,13 @@ class AudioTagger(QtGui.QMainWindow):
         self.deactivateAllLabelRects()
 
     ######################## GUI STUFF ########################
-    def resizeEvent(self, event):
-        super(AudioTagger, self).resizeEvent(event)
+    def updateViews(self):
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
         self.setZoomBoundingBox()
+
+    def resizeEvent(self, event):
+        super(AudioTagger, self).resizeEvent(event)
+        self.updateViews()
 
     # def resize(self, *size):
     #     super(AudioTagger, self).resize(*size)
@@ -149,6 +156,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.cb_file.activated.connect(self.selectFromFilelist)
         self.ui.cb_create.toggled.connect(self.toogleCreateMode)
         self.ui.cb_playbackSpeed.activated.connect(self.selectPlaybackSpeed)
+        self.ui.cb_specType.activated.connect(self.selectSpectrogramMode)
 
         ## menu
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
@@ -414,9 +422,18 @@ class AudioTagger(QtGui.QMainWindow):
     def selectPlaybackSpeed(self, idx):
         self.changePlaybackSpeed(float(self.ui.cb_playbackSpeed.itemText(idx)))
 
+    def selectSpectrogramMode(self, idx):
+        if idx == 0:
+            self.changeSpectrogramModeToAudible()
+        elif idx == 1:
+            self.changeSpectrogramModeToUltraSonic()
+
+        self.resetView()
+        self.updateViews()
+
     ################### SOUND STUFF #######################
     def updateSoundMarker(self):
-        markerPos = self.soundSec * 100 # multiply by step-size in SpecGen()
+        markerPos = self.soundSec * (1.0 / self.specNStepMod) # 100 # multiply by step-size in SpecGen()
         line = QtCore.QLineF(markerPos, 0, markerPos, self.specHeight)
         if not self.soundMarker:
             penCol = QtGui.QColor()
@@ -606,12 +623,22 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     ####################### SPECTROGRAM #############################
+    def changeSpectrogramResolution(self, nstepMod, nWinMod):
+        self.specNStepMod = nstepMod    # horizontal resolution of spectogram
+        self.specNWinMod = nWinMod     # vertical resolution of spectogram
+
+    def changeSpectrogramModeToAudible(self):
+        self.changeSpectrogramResolution(0.01, 0.03)
+
+    def changeSpectrogramModeToUltraSonic(self):
+        self.changeSpectrogramResolution(0.001, 0.003)
+
     def SpecGen(self, filepath):
         sr,x = scipy.io.wavfile.read(filepath)
 
         ## Parameters: 10ms step, 30ms window
-        nstep = int(sr * 0.01)
-        nwin  = int(sr * 0.03)
+        nstep = int(sr * self.specNStepMod)
+        nwin  = int(sr * self.specNWinMod)
         nfft = nwin
 
         window = np.hamming(nwin)
