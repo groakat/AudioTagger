@@ -1,13 +1,16 @@
 import sys
 import os
+import csv
 
 import scipy.io.wavfile
+import time
 import scipy.misc as spmisc
 import numpy as np
 import pylab as plt
 import json
 import datetime as dt
 from collections import OrderedDict
+import warnings
 
 import qimage2ndarray as qim2np
 
@@ -510,8 +513,15 @@ class AudioTagger(QtGui.QMainWindow):
     ################### WAV FILE LOAD  ######################
     def resetView(self):
         self.clearSceneRects()
-        self.updateSpecLabel()
         self.loadSceneRects()
+        self.updateSpecLabel()
+        if self.specNStepMod == 0.01 and self.specNWinMod == 0.03:
+            self.ui.cb_specType.setCurrentIndex(0)
+        elif  self.specNStepMod == 0.001 and self.specNWinMod == 0.003:
+            self.ui.cb_specType.setCurrentIndex(1)
+        else:
+            warnings.warn("loaded spectrogram does not fit in preprogrammed values of audible and ultrasonic range")
+
         self.zoom(1)
 
         self.activeLabel = None
@@ -832,15 +842,49 @@ class AudioTagger(QtGui.QMainWindow):
             r = labelRect.rect()
             rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
-            labels += [[rect, c]]
+
+            freqStep = self.s4p.wav[0] / self.specHeight / 2
+            boundingBox = self.spec[rect[0]:rect[0] + rect[2],
+                                    rect[1]:rect[1] + rect[3]]
+            # label head:
+            # (wav)Filename    Label    LabelTimeStamp     Spec_NStep
+            # Spec_NWin     Spec_x1     Spec_y1     Spec_x2     Spec_y2
+            # LabelStartTime_Seconds    LabelEndTime_Seconds    MinimumFreq_Hz
+            # MaximumFreq_Hz    MaxAmp    MinAmp    MeanAmp
+            # AmpSD LabelArea_DataPoints
+            label = [
+                os.path.basename(self.filelist[self.fileidx]),  # filename
+                self.rectClasses[labelRect],                    # Label
+                dt.datetime.now().isoformat(),                  # LabelTimeStamp
+                self.specNStepMod,                              # Spec_NStep
+                self.specNWinMod,                               # Spec_NWin
+                r.x(), r.y(), r.x()+r.width(), r.y()+r.height(),# Spec_x1, y1, x2, y2
+                r.x() * self.specNStepMod,                      # LabelStartTime_Seconds
+                (r.x() + r.width()) * self.specNStepMod,          # LabelEndTime_Seconds
+                r.y() * freqStep,                               # MinimumFreq_Hz
+                (r.y() + r.height()) * freqStep,                # MaximumFreq_Hz
+                np.max(boundingBox),                            # MaxAmp
+                np.min(boundingBox),                            # MinAmp
+                np.mean(boundingBox),                           # MeanAmp
+                np.std(boundingBox),                            # AmpSD
+                r.width() * r.height()                          # LabelArea_DataPoints
+                ]
+
+            labels += [label]
 
         return labels
 
     def convertRectsToLabelRects(self, labels):
         self.clearSceneRects()
 
-        for r, c in labels:
-            rect = QtCore.QRectF(*r)#Ask Peter again what the * means
+        for l in labels:
+            rect = QtCore.QRectF(float(l[5]),float(l[6]),
+                                 float(l[7]) - float(l[5]),
+                                 float(l[8]) - float(l[6]))
+            c = l[1]
+
+            self.specNStepMod = float(l[3])
+            self.specNWinMod = float(l[4])
 
             try:
                 penCol = self.labelTypes[c]
@@ -862,7 +906,7 @@ class AudioTagger(QtGui.QMainWindow):
                                          self.registerLastLabelRectContext,
                                          c,
                                          rectChangedCallback=self.labelRectChangedSlot)
-            labelRect.setRect(*r)
+            labelRect.setRect(rect)
             labelRect.setColor(penCol)
             labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
             labelRect.setupInfoTextItem(fontSize=12)
@@ -875,39 +919,52 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     def saveSceneRects(self, fileAppendix="-sceneRect"):
-        filename = self.createLabelFilename(fileAppendix)
+        filename = self.createLabelFilename(fileAppendix, ending='.csv')
         
         if not os.path.exists(self.labelfolder):
             os.makedirs(self.labelfolder)
 
-        rects = self.convertLabelRectsToRects()
+        labels = self.convertLabelRectsToRects()
 
         with open(filename, "w") as f:
-            json.dump(rects, f)
+            wr = csv.writer(f, dialect='excel')
+            wr.writerow(["Filename", "Label", "LabelTimeStamp", "Spec_NStep", "Spec_NWin", "Spec_x1", "Spec_y1", "Spec_x2", "Spec_y2",
+                        "LabelStartTime_Seconds", "LabelEndTime_Seconds", "MinimumFreq_Hz", "MaximumFreq_Hz",
+                        "MaxAmp", "MinAmp", "MeanAmp", "AmpSD", "LabelArea_DataPoints"])
+            for label in labels:
+                wr.writerow(label)
 
         self.contentChanged = False
 
     def loadSceneRects(self, fileAppendix="-sceneRect"):
-        filename = self.createLabelFilename(fileAppendix)
+        filename = self.createLabelFilename(fileAppendix, ending='.csv')
 
         if os.path.exists(filename):
             with open(filename, "r") as f:
-                rects = json.load(f)
-                self.convertRectsToLabelRects(rects)
+                # dialect = csv.Sniffer().sniff(f.read(1024))
+                # f.seek(0)
+                reader = csv.reader(f, dialect='excel')
+                rects = []
+                for line in reader:
+                    rects += [line]
+                # rects = json.load(f)
+                self.convertRectsToLabelRects(rects[1:])
 
         self.contentChanged = False
 
         if self.ui.cb_create.checkState == QtCore.Qt.CheckState.Checked:
             self.deactivateAllLabelRects()
 
-    def createLabelFilename(self, fileAppendix="-sceneRect"):        
+
+    def createLabelFilename(self, fileAppendix="-sceneRect", ending='.json'):
         currentWavFilename = self.filelist[self.fileidx]
         if currentWavFilename.endswith('.wav'):
             filename = currentWavFilename[:-4]#Everything other than last 4 characters, i.e. .wav
         else:
             raise RuntimeError("Program only works for wav files")
 
-        filename += fileAppendix + ".json"
+        # filename += fileAppendix + ".json"
+        filename += fileAppendix + ending# ".csv"
         filename = os.path.basename(filename)
         filename = os.path.join(self.labelfolder, filename)
 
