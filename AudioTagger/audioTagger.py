@@ -843,7 +843,7 @@ class AudioTagger(QtGui.QMainWindow):
             rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
 
-            freqStep = self.s4p.wav[0] / self.specHeight / 2
+            freqStep = float(self.s4p.wav[0]) / self.specHeight / 2
             boundingBox = self.spec[rect[0]:rect[0] + rect[2],
                                     rect[1]:rect[1] + rect[3]]
             # label head:
