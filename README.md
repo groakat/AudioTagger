@@ -30,10 +30,9 @@ General dependencies (if not anaconda is used as python distro):
 
 
 
-Detailed Windows Install Instructions
-_____________________________________
+##Detailed Windows Install Instructions
 
-Install anaconda 32bit or 64bit depending on your machine (if you have Enthought remove it)
+Install anaconda 32bit or 64bit depending on your machine (if you have the Enthought distro remove it)
 Click the boxes that say 
 1) Add to system path and variables
 2) Register anaconda as the system Python 2.7
