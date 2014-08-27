@@ -58,8 +58,8 @@ def convertLabelRectsToRects(rects, wavpath):
         rect = [r[0], r[1], r[0]+r[2], r[1]+r[3]]
 
         sr,x = scipy.io.wavfile.read(wavpath)
-        freqStep = float(sr) / 360 / 2
         spec = SpecGen(wavpath)
+        freqStep = float(sr) / spec.shape[1] / 2
         boundingBox = spec[rect[0]:rect[2],
                            rect[1]:rect[3]]
         # label head:
