@@ -39,11 +39,14 @@ Click the boxes that say
 
 Open a command window (Click the start button and type cmd) 
 In the command window type 
-conda install PySide
+    
+    conda install PySide
 followed by
-pip install https://github.com/groakat/sound4python/archive/master.zip
+
+    pip install https://github.com/groakat/sound4python/archive/master.zip
 and finally 
-pip install https://github.com/groakat/qimage2ndarray/archive/master.zip
+
+    pip install https://github.com/groakat/qimage2ndarray/archive/master.zip
 
 
 Download GitHub for windows (https://windows.github.com/)
@@ -52,7 +55,8 @@ Click clone
 Select groakat/AudioTagger and specify a folder on your computer to save it to e.g. C:\Users\localadmin\projects\
 
 Back at the command window type
-ipython locate profile default
+
+    ipython locate profile default
 
 This will return a folder name something like:
 C:\Users\user_name\.ipython\profile_default
@@ -60,8 +64,9 @@ Open the startup folder inside it e.g. C:\Users\user_name\.ipython\profile_defau
 
 Create a new document inside that folder called audio_tagger.py
 Open audio_tagger.py in notepad and paste the following two lines of code and save and exit:
-import sys
-sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER")
+
+    import sys
+    sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER")
 
 where PATH_TO_DOWNLOADED_FOLDER is the path to the code you cloned the project from github (the folder containing setup.py)
 e.g. sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER") becomes sys.path.append(r"C:\Users\localadmin\projects\AudioTagger")
@@ -69,5 +74,6 @@ e.g. sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER") becomes sys.path.append(r"C:\
 Now everthing is installed. To run the program in the command window change to the folder the project is in
 e.g. cd C:\Users\localadmin\projects\AudioTagger
 then run it using ipython
-ipython audioTagger.py
+
+    ipython audioTagger.py
 You will then be asked for the folder containing your wav files and a folder to save you output annotations in.
