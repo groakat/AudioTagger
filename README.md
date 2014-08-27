@@ -28,8 +28,10 @@ General dependencies (if not anaconda is used as python distro):
     pip install PySide
 
 
+
+
 Detailed Windows Install Instructions
-#####################################
+_____________________________________
 
 Install anaconda 32bit or 64bit depending on your machine (if you have Enthought remove it)
 Click the boxes that say 
