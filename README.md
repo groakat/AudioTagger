@@ -26,3 +26,48 @@ General dependencies (if not anaconda is used as python distro):
     pip install numpy
     pip install scipy
     pip install PySide
+
+
+Detailed Windows Install Instructions
+#####################################
+
+Install anaconda 32bit or 64bit depending on your machine (if you have Enthought remove it)
+Click the boxes that say 
+1) Add to system path and variables
+2) Register anaconda as the system Python 2.7
+
+
+Open a command window (Click the start button and type cmd) 
+In the command window type 
+conda install PySide
+followed by
+pip install https://github.com/groakat/sound4python/archive/master.zip
+and finally 
+pip install https://github.com/groakat/qimage2ndarray/archive/master.zip
+
+
+Download GitHub for windows (https://windows.github.com/)
+After signing in hit plus in top left to add repository
+Click clone
+Select groakat/AudioTagger and specify a folder on your computer to save it to e.g. C:\Users\localadmin\projects\
+
+Back at the command window type
+ipython locate profile default
+
+This will return a folder name something like:
+C:\Users\user_name\.ipython\profile_default
+Open the startup folder inside it e.g. C:\Users\user_name\.ipython\profile_default\startup
+
+Create a new document inside that folder called audio_tagger.py
+Open audio_tagger.py in notepad and paste the following two lines of code and save and exit:
+import sys
+sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER")
+
+where PATH_TO_DOWNLOADED_FOLDER is the path to the code you cloned the project from github (the folder containing setup.py)
+e.g. sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER") becomes sys.path.append(r"C:\Users\localadmin\projects\AudioTagger")
+
+Now everthing is installed. To run the program in the command window change to the folder the project is in
+e.g. cd C:\Users\localadmin\projects\AudioTagger
+then run it using ipython
+ipython audioTagger.py
+You will then be asked for the folder containing your wav files and a folder to save you output annotations in.
