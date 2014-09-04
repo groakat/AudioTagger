@@ -34,21 +34,40 @@ General dependencies (if not anaconda is used as python distro):
 
 Install anaconda 32bit or 64bit depending on your machine (if you have the Enthought distro remove it)
 Click the boxes that say 
-1) Add to system path and variables
-2) Register anaconda as the system Python 2.7
 
+1. Add to system path and variables
+2. Register anaconda as the system Python 2.7
+
+### Installing dependencies using Conda
+
+If you have windows 64 bit (all newer versions), you can install all dependencies within anaconda by following the following steps (then continue with the github part below):
+
+Open a command window (Click the start button and type cmd) 
+In the command window type
+
+    conda config --add channels https://conda.binstar.org/groakat
+    conda install audiotagger-dependencies
+    
+### Installing dependencies manually
+
+If you have an 32bit version of windows, you have currently to follow this steps and install the dependencies manually:
 
 Open a command window (Click the start button and type cmd) 
 In the command window type 
     
     conda install PySide
+    
 followed by
 
     pip install https://github.com/groakat/sound4python/archive/master.zip
-and finally 
+    
+(please follow the instructions on https://github.com/groakat/sound4python to install `sox` as well.)
+
+and finally do
 
     pip install https://github.com/groakat/qimage2ndarray/archive/master.zip
 
+### Installing github and audioTagger
 
 Download GitHub for windows (https://windows.github.com/)
 After signing in hit plus in top left to add repository
