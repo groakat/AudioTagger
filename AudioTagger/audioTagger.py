@@ -27,11 +27,14 @@ import AudioTagger.colourMap as CM
 
 class AudioTagger(QtGui.QMainWindow):
     
-    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None):
+    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None, test=False):
         super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        if test:
+            return
 
         # self.scrollEvent = ScrollAreaEventFilter(self.scrollbarSlideEvent)
         self.mouseEventFilter = MouseFilterObj(self)
@@ -644,28 +647,30 @@ class AudioTagger(QtGui.QMainWindow):
         self.changeSpectrogramResolution(0.001, 0.003)
 
     def SpecGen(self, filepath):
-        sr,x = scipy.io.wavfile.read(filepath)
 
-        ## Parameters: 10ms step, 30ms window
+        sr, x = scipy.io.wavfile.read(filepath)
+    
+        ## Parameters
         nstep = int(sr * self.specNStepMod)
         nwin  = int(sr * self.specNWinMod)
         nfft = nwin
 
-        window = np.hamming(nwin)
-
-        ## will take windows x[n1:n2].  generate
-        ## and loop over n2 such that all frames
-        ## fit within the waveform
-        nn = range(nwin, len(x), nstep)
-
-        X = np.zeros( (len(nn), nfft/2) )
-
-        for i,n in enumerate(nn):
-            xseg = x[n-nwin:n]
-            z = np.fft.fft(window * xseg, nfft)
-            X[i,:] = np.log(np.abs(z[:nfft/2]))
-        
-        return X
+        # Get all windows of x with length n as a single array, using strides to avoid data duplication
+        #shape = (nfft, len(range(nfft, len(x), nstep)))
+        shape = (nfft, ((x.shape[0] - nfft - 1)/nstep)+1)
+        strides = (x.itemsize, nstep*x.itemsize)
+        x_wins = np.lib.stride_tricks.as_strided(x, shape=shape, strides=strides)
+    
+        # Apply hamming window
+        x_wins_ham = np.hamming(x_wins.shape[0])[..., np.newaxis] * x_wins
+    
+        # compute fft
+        fft_mat = np.fft.fft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
+    
+        # log magnitude
+        fft_mat_lm = np.log(np.abs(fft_mat))
+    
+        return fft_mat_lm.T
 
     def updateLabelWithSpectrogram(self, spec):
         # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
@@ -1183,7 +1188,7 @@ if __name__ == "__main__":
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
     w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None)
-    
+
     sys.exit(app.exec_())
 
 #C:\Users\ucfaalf\Anaconda;C:\Users\ucfaalf\Anaconda\Scripts
