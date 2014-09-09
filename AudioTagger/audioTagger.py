@@ -650,7 +650,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         sr, x = scipy.io.wavfile.read(filepath)
     
-        ## Parameters: 10ms step, 30ms window
+        ## Parameters
         nstep = int(sr * self.specNStepMod)
         nwin  = int(sr * self.specNWinMod)
         nfft = nwin
