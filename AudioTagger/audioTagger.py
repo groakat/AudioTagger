@@ -3,11 +3,7 @@ import os
 import csv
 
 import scipy.io.wavfile
-import time
-import scipy.misc as spmisc
 import numpy as np
-import pylab as plt
-import json
 import datetime as dt
 from collections import OrderedDict
 import warnings
