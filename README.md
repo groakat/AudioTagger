@@ -30,17 +30,31 @@ General dependencies (if not anaconda is used as python distro):
 
 
 
-##Detailed Windows Install Instructions
+##Detailed Install Instructions
 
-Install anaconda 32bit or 64bit depending on your machine (if you have the Enthought distro remove it)
+You need to
+
+* download anaconda
+* install the dependencies
+* install the AudioTagger
+
+### Downloading Anaconda
+
+On any system, install anaconda 64bit (if possible, otherwise use 32bit and install the dependencies by hand). If you have the Enthought distro remove it.
 Click the boxes that say 
 
 1. Add to system path and variables
 2. Register anaconda as the system Python 2.7
 
-### Installing dependencies using Conda
+### Installing dependencies
 
-If you have windows 64 bit (all newer versions), you can install all dependencies within anaconda by following the following steps (then continue with the github part below):
+If you have **Windows 64 bit** (all newer versions) or **OSX**, follow the instructions in the section "Installing dependencies using Conda (Windows 64bit or OSX)" and then continue with "Installing github and audioTagger".
+
+If you have **Windows 32 bit** or **Linux**, follow the instructions in the section "Installing dependencies manually (Linux, Windows 32bit)" and then continue with "Installing github and audioTagger". 
+
+#### Installing dependencies using Conda (Windows 64bit or OSX)
+
+If you have **Windows 64 bit** (all newer versions) or **OSX**, you can install all dependencies within anaconda by following the following steps (then continue with the github part below):
 
 Open a command window (Click the start button and type cmd) 
 In the command window type
@@ -48,7 +62,7 @@ In the command window type
     conda config --add channels https://conda.binstar.org/groakat
     conda install audiotagger-dependencies
     
-### Installing dependencies manually
+#### Installing dependencies manually (Linux, Windows 32bit)
 
 If you have an 32bit version of windows, you have currently to follow this steps and install the dependencies manually:
 
@@ -69,31 +83,17 @@ and finally do
 
 ### Installing github and audioTagger
 
-Download GitHub for windows (https://windows.github.com/)
+Download GitHub for windows (https://windows.github.com/) or Max OSX (https://mac.github.com)
 After signing in hit plus in top left to add repository
 Click clone
-Select groakat/AudioTagger and specify a folder on your computer to save it to e.g. C:\Users\localadmin\projects\
+Select groakat/AudioTagger and specify a folder on your computer to save it to e.g. `C:\Users\localadmin\projects\`. 
 
-Back at the command window type
+Now open a terminal (Windows: hit [start-key] and type `cmd` [return]) and navigate to the path you have downloaded the `AudioTagger` to using GitHub, e.g. `cd C:\Users\localadmin\projects\AudioTagger`. Now you can install the `AudioTagger` by typing
 
-    ipython locate profile default
-
-This will return a folder name something like:
-C:\Users\user_name\.ipython\profile_default
-Open the startup folder inside it e.g. C:\Users\user_name\.ipython\profile_default\startup
-
-Create a new document inside that folder called audio_tagger.py
-Open audio_tagger.py in notepad and paste the following two lines of code and save and exit:
-
-    import sys
-    sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER")
-
-where PATH_TO_DOWNLOADED_FOLDER is the path to the code you cloned the project from github (the folder containing setup.py)
-e.g. sys.path.append(r"PATH_TO_DOWNLOADED_FOLDER") becomes sys.path.append(r"C:\Users\localadmin\projects\AudioTagger")
-
-Now everthing is installed. To run the program in the command window change to the folder the project is in
-e.g. cd C:\Users\localadmin\projects\AudioTagger
-then run it using ipython
+    python setup.py develop
+    
+To run the `AudioTagger`, open a terminal (Windows: hit [start-key] and type `cmd` [return]), and navigate to the `audioTagger.py` file. E.g. `cd C:\Users\localadmin\projects\AudioTagger\AudioTagger` and run:
 
     ipython audioTagger.py
+    
 You will then be asked for the folder containing your wav files and a folder to save you output annotations in.
