@@ -4,8 +4,26 @@ AudioTagger
 A simple program to tag wav files by drawing bounding boxes on the spectrogram.
 
 
-Dependencies
-#############
+## Quick Install
+
+On most systems it should work to
+
+1. Install miniconda (http://conda.pydata.org/miniconda.html)
+2. type in the terminal 
+
+
+    conda config --add channels https://conda.binstar.org/groakat
+    conda install audiotagger-dependencies
+    pip install -U git+https://github.com/groakat/AudioTagger.git
+    
+
+Now you can start the `AudioTagger` by opening a terminal and simply typing
+
+    AudioTagger
+    
+If this does not work, please proceed reading the remainder of the README. Otherwise you are done. :)
+
+## Dependencies
 
 The program should run with an anaconda installation plus the following dependencies:
 
@@ -81,7 +99,15 @@ and finally do
 
     pip install https://github.com/groakat/qimage2ndarray/archive/master.zip
 
-### Installing github and audioTagger
+### Installing 
+
+#### stable install (standard)
+
+Open a terminal and type:
+
+    pip install git+https://github.com/groakat/AudioTagger.git
+
+#### github and audioTagger
 
 Download GitHub for windows (https://windows.github.com/) or Max OSX (https://mac.github.com)
 After signing in hit plus in top left to add repository
