@@ -23,7 +23,8 @@ import AudioTagger.colourMap as CM
 
 class AudioTagger(QtGui.QMainWindow):
     
-    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None, test=False):
+    def __init__(self, basefolder=None, labelfolder=None, labelTypes=None, test=False,
+                 ignoreSettings=False):
         super(AudioTagger, self).__init__()
         # Usual setup stuff. Set up the user interface from Designer
         self.ui = Ui_MainWindow()
@@ -43,7 +44,11 @@ class AudioTagger(QtGui.QMainWindow):
         self.horzScrollbarValue = 0
         self.vertScrollbarValue = 0
 
-        self.loadFoldersLocal()
+        if not ignoreSettings:
+            self.loadFoldersLocal()
+        else:
+            self.basefolder = None
+            self.labelfolder = None
 
         if basefolder:
             self.basefolder = basefolder
@@ -71,7 +76,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.specNStepMod = 0.01    # horizontal resolution of spectogram 0.01
         self.specNWinMod = 0.03     # vertical resolution of spectogram 0.03
 
-        self.scrollingWithoutUser = False                   
+        self.scrollingWithoutUser = False
 
         self.activeLabel = None
         self.specHeight = 360
@@ -109,7 +114,8 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.setupLabelMenu()
         if labelTypes is None:
-            self.loadSettingsLocal()
+            if not ignoreSettings:
+                self.loadSettingsLocal()
             self.contentChanged = False
         else:
             self.labelTypes = labelTypes
@@ -1176,7 +1182,7 @@ class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
         self.setFlags(not QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setCursor(QtCore.Qt.ArrowCursor)
 
-def main():
+def main(ignoreSettings=False):
     labelTypes = OrderedDict()
 
     penCol = QtGui.QColor()
@@ -1207,7 +1213,8 @@ def main():
 
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
-    w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None)
+    w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None,
+                    ignoreSettings=True)
 
     sys.exit(app.exec_())
 
