@@ -1,9 +1,9 @@
+from __future__ import with_statement
 import os
 from setuptools import find_packages
 
 
 ## windows install part from http://matthew-brett.github.io/pydagogue/installing_scripts.html
-from __future__ import with_statement
 import os
 from os.path import join as pjoin, splitext, split as psplit
 from distutils.core import setup
