@@ -498,7 +498,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundTimer.stop()
 
     def seekSound(self, graphicsPos):
-        sec = graphicsPos / 100.0
+        sec = graphicsPos * self.specNStepMod
         self.s4p.seek(sec)
         self.soundSec = sec
         self.updateSoundMarker()
