@@ -425,6 +425,15 @@ class AudioTagger(QtGui.QMainWindow):
         self.changePlaybackSpeed(float(self.ui.cb_playbackSpeed.itemText(idx)))
 
     def selectSpectrogramMode(self, idx):
+        canProceed = self.checkIfSavingNecessary()
+
+        if not canProceed:
+            if idx == 0:
+                self.ui.cb_specType.setCurrentIndex(1)
+            elif idx == 1:
+                self.ui.cb_specType.setCurrentIndex(0)
+            return
+
         if idx == 0:
             self.changeSpectrogramModeToAudible()
         elif idx == 1:
