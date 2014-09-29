@@ -103,6 +103,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelRect = None
         self.labelTypes = OrderedDict()
         self.cm = CM.getColourMap()
+        self.rectOrgX = None
+        self.rectOrgY = None
 
         self.setupLabelMenu()
         if labelTypes is None:
@@ -789,6 +791,12 @@ class AudioTagger(QtGui.QMainWindow):
                               centerOnActiveLabel=False)
 
     def openSceneRectangle(self, x, y):
+        if not self.labelTypes:
+            msgBox = QtGui.QMessageBox()
+            msgBox.setText("You have not specified labels yet. Please do so in File -> Class Settings.")
+            msgBox.exec_()
+            return
+
         rect = QtCore.QRectF(x, y, 0, 0)
         if self.labelRect:
             self.overviewScene.removeItem(self.labelRect)
@@ -809,20 +817,34 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.rectClasses[self.labelRect] = self.ui.cb_labelType.currentText()
 
+        self.rectOrgX = x
+        self.rectOrgY = y
+
 
     def closeSceneRectangle(self):
         self.labelRects.append(self.labelRect)
         self.labelRect = None
         self.contentChanged = True
+        self.rectOrgX = None
+        self.rectOrgY = None
 
     def resizeSceneRectangle(self, x, y):
         if self.labelRect:
-            orgX = self.labelRect.rect().x()
-            orgY = self.labelRect.rect().y()
-            w = x - orgX
-            h = y - orgY
-            self.labelRect.setRect(orgX,
-                                   orgY, w, h)
+            if x > self.rectOrgX:
+                newX = self.rectOrgX
+            else:
+                newX = x
+
+            if y > self.rectOrgY:
+                newY = self.rectOrgY
+            else:
+                newY = y
+
+            w = np.abs(x - self.rectOrgX)
+            h = np.abs(y - self.rectOrgY)
+
+            self.labelRect.setRect(newX,
+                                   newY, w, h)
 
     def abortSceneRectangle(self):
         self.overviewScene.removeItem(self.labelRect)
