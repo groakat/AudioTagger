@@ -1143,25 +1143,7 @@ class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
         self.setFlags(not QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setCursor(QtCore.Qt.ArrowCursor)
 
-
-class MouseInsideFilterObj(QtCore.QObject):#And this one
-    def __init__(self, enterCallback, leaveCallback):
-        QtCore.QObject.__init__(self)
-
-        self.enterCallback = enterCallback
-        self.leaveCallback = leaveCallback
-
-    def eventFilter(self, obj, event):
-        if event.type() == QtCore.QEvent.Type.Enter:
-            self.enterCallback(obj)
-
-        if event.type() == QtCore.QEvent.Type.Leave:
-            self.leaveCallback(obj)
-
-        return False
-
-
-if __name__ == "__main__":
+def main():
     labelTypes = OrderedDict()
 
     penCol = QtGui.QColor()
@@ -1196,4 +1178,23 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-#C:\Users\ucfaalf\Anaconda;C:\Users\ucfaalf\Anaconda\Scripts
+
+class MouseInsideFilterObj(QtCore.QObject):#And this one
+    def __init__(self, enterCallback, leaveCallback):
+        QtCore.QObject.__init__(self)
+
+        self.enterCallback = enterCallback
+        self.leaveCallback = leaveCallback
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.Type.Enter:
+            self.enterCallback(obj)
+
+        if event.type() == QtCore.QEvent.Type.Leave:
+            self.leaveCallback(obj)
+
+        return False
+
+
+if __name__ == "__main__":
+    main()
