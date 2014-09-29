@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+
+from PySide import QtGui
+from AudioTagger import audioTagger as A
+
+if __name__ == "__main__":
+
+    app = QtGui.QApplication(sys.argv)
+
+    app.setOrganizationName("UCL")
+    app.setOrganizationDomain("https://github.com/groakat/AudioTagger")
+    app.setApplicationName("audioTagger")
+
+    w = A.AudioTagger(basefolder=None, labelfolder=None, labelTypes=None)
+
+    sys.exit(app.exec_())
