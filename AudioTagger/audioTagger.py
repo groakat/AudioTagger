@@ -105,6 +105,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.cm = CM.getColourMap()
         self.rectOrgX = None
         self.rectOrgY = None
+        self.isRectangleOpen = False
 
         self.setupLabelMenu()
         if labelTypes is None:
@@ -785,10 +786,17 @@ class AudioTagger(QtGui.QMainWindow):
             if not self.mouseInOverview \
             or not self.tracker.active:
                 self.openSceneRectangle(x, y)
+                self.isRectangleOpen = True
+
         else:
             self.mouseEventFilter.isRectangleOpen = False
             self.toogleToItem(self.overviewScene.itemAt(x, y),
                               centerOnActiveLabel=False)
+
+    def releaseInScene(self):
+        self.closeSceneRectangle()
+        self.isRectangleOpen = False
+
 
     def openSceneRectangle(self, x, y):
         if not self.labelTypes:
@@ -808,7 +816,7 @@ class AudioTagger(QtGui.QMainWindow):
                                           self.registerLastLabelRectContext,
                                           self.ui.cb_labelType.currentText(),
                                           rectChangedCallback=self.labelRectChangedSlot)
-        self.labelRect.setRect(x, y, 0, 0)
+        self.labelRect.setRect(x, y, 1, 1)
         self.labelRect.setColor(penCol)
         self.labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
         self.labelRect.setupInfoTextItem(fontSize=12)
@@ -1094,17 +1102,19 @@ class MouseFilterObj(QtCore.QObject):#And this one
         # print event.type()
 
         if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseRelease:
-            self.isRectangleOpen = not self.isRectangleOpen
+            self.parent.releaseInScene()
+            # self.isRectangleOpen = not self.isRectangleOpen
 
-            if self.isRectangleOpen:
-                self.parent.clickInScene(int(event.scenePos().x()), 
-                                          int( event.scenePos().y()))
-            else:
-                self.parent.closeSceneRectangle()
+            # if self.isRectangleOpen:
+        if event.type() == QtCore.QEvent.Type.GraphicsSceneMousePress:
+            self.parent.clickInScene(int(event.scenePos().x()),
+                                      int( event.scenePos().y()))
+            # else:
+            #     self.parent.closeSceneRectangle()
 
         if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseMove:
-            if self.isRectangleOpen:
-                if (event.type() == QtCore.QEvent.GraphicsSceneMouseMove):
+            if self.parent.isRectangleOpen:
+                if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
                     self.parent.resizeSceneRectangle(int(event.scenePos().x()), 
                                                     int( event.scenePos().y()))
 
