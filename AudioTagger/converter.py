@@ -51,7 +51,49 @@ def SpecGen(filepath):
 
     return X
 
-def convertLabelRectsToRects(rects, wavpath):
+def getBoxCoordinates(item, SpecRows):
+    """
+    Function which parses coordinates of bounding boxes in .json files to x1, x2, y1, and y2 objects.
+
+    Takes account of different methods of drawing bounding boxes, so that coordinates are correct regardless of how bounding boxes are drawn.
+
+    Also takes account of boxes that are accidently drawn outside of the spectrogram.
+
+    """
+    if item[0][2]>0 and item[0][3]>0:
+        x1 = item[0][0]
+        x2 = item[0][0] + item[0][2]
+        y1 = item[0][1]
+        y2 = item[0][1] + item[0][3]
+    elif item[0][2]<0 and item[0][3]<0:
+        x1 = item[0][0] + item[0][2]
+        x2 = item[0][0]
+        y1 = item[0][1] + item[0][3]
+        y2 = item[0][1]
+    elif item[0][2]>0 and item[0][3]<0:
+        x1 = item[0][0]
+        x2 = item[0][0] + item[0][2]
+        y1 = item[0][1] + item[0][3]
+        y2 = item[0][1]
+    else:
+        x1 = item[0][0] + item[0][2]
+        x2 = item[0][0]
+        y1 = item[0][1]
+        y2 = item[0][1] + item[0][3]
+    if x1 < 0:
+        x1 = 0
+    if y1 < 0:
+        y1 = 0
+    if y2 > SpecRows:
+        y2 = SpecRows
+    #Transform y coordinates
+    y1 = (y1-SpecRows)*-1
+    y2 = (y2-SpecRows)*-1
+
+
+    return x1, x2, y2, y1
+
+    def convertLabelRectsToRects(rects, wavpath):
     labels = []
     for r, c in rects:
 
@@ -116,4 +158,3 @@ if __name__ == "__main__":
     convertJSON2CSV('/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files_label/HA53AA-13548_20130727_050000 Part 01 of 30-sceneRect.json',
                     '/home/peter/phd/projects/spectogram/Python/Amalgamated_Code/Snd_files/HA53AA-13548_20130727_050000 Part 01 of 30.wav',
                     csvAppendix='-test')
-
