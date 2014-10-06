@@ -5,6 +5,8 @@ import numpy as np
 import datetime as dt
 import csv
 
+SpecRows = 360
+
 def createLabelFilename(jsonFilename, fileAppendix="", ending='.csv'):
     currentWavFilename = jsonFilename
     if currentWavFilename.endswith('.json'):
@@ -51,7 +53,7 @@ def SpecGen(filepath):
 
     return X
 
-def getBoxCoordinates(item, SpecRows):
+def getBoxCoordinates(r, spec):
     """
     Function which parses coordinates of bounding boxes in .json files to x1, x2, y1, and y2 objects.
 
@@ -60,26 +62,26 @@ def getBoxCoordinates(item, SpecRows):
     Also takes account of boxes that are accidently drawn outside of the spectrogram.
 
     """
-    if item[0][2]>0 and item[0][3]>0:
-        x1 = item[0][0]
-        x2 = item[0][0] + item[0][2]
-        y1 = item[0][1]
-        y2 = item[0][1] + item[0][3]
-    elif item[0][2]<0 and item[0][3]<0:
-        x1 = item[0][0] + item[0][2]
-        x2 = item[0][0]
-        y1 = item[0][1] + item[0][3]
-        y2 = item[0][1]
-    elif item[0][2]>0 and item[0][3]<0:
-        x1 = item[0][0]
-        x2 = item[0][0] + item[0][2]
-        y1 = item[0][1] + item[0][3]
-        y2 = item[0][1]
+    if r[2]>0 and r[3]>0:
+        x1 = r[0]
+        x2 = r[0] + r[2]
+        y1 = r[1]
+        y2 = r[1] + r[3]
+    elif r[2]<0 and r[3]<0:
+        x1 = r[0] + r[2]
+        x2 = r[0]
+        y1 = r[1] + r[3]
+        y2 = r[1]
+    elif r[2]>0 and r[3]<0:
+        x1 = r[0]
+        x2 = r[0] + r[2]
+        y1 = r[1] + r[3]
+        y2 = r[1]
     else:
-        x1 = item[0][0] + item[0][2]
-        x2 = item[0][0]
-        y1 = item[0][1]
-        y2 = item[0][1] + item[0][3]
+        x1 = r[0] + r[2]
+        x2 = r[0]
+        y1 = r[1]
+        y2 = r[1] + r[3]
     if x1 < 0:
         x1 = 0
     if y1 < 0:
@@ -87,48 +89,59 @@ def getBoxCoordinates(item, SpecRows):
     if y2 > SpecRows:
         y2 = SpecRows
     #Transform y coordinates
-    y1 = (y1-SpecRows)*-1
-    y2 = (y2-SpecRows)*-1
+    y1 = (y1 - SpecRows)*-1
+    y2 = (y2 - SpecRows)*-1
 
 
     return x1, x2, y2, y1
 
-    def convertLabelRectsToRects(rects, wavpath):
+def convertLabelRectsToRects(rects, wavpath):
     labels = []
     for r, c in rects:
+        if r[2] == 0 or r[3] == 0:
+            label = [
+                os.path.basename(wavpath),                      # filename
+                c,                                              # Label
+                dt.datetime.now().isoformat(),                  # LabelTimeStamp
+                0.01,                                           # Spec_NStep
+                0.03,                                           # Spec_NWin
+                ["Not a box"]
+                ]
+        else:
 
-        rect = [r[0], r[1], r[0]+r[2], r[1]+r[3]]
+            x1, x2, y1, y2 = getBoxCoordinates(r, SpecRows)
 
-        sr,x = scipy.io.wavfile.read(wavpath)
-        spec = SpecGen(wavpath)
-        freqStep = float(sr) / spec.shape[1] / 2
-        boundingBox = spec[rect[0]:rect[2],
-                           rect[1]:rect[3]]
-        # label head:
-        # (wav)Filename    Label    LabelTimeStamp     Spec_NStep
-        # Spec_NWin     Spec_x1     Spec_y1     Spec_x2     Spec_y2
-        # LabelStartTime_Seconds    LabelEndTime_Seconds    MinimumFreq_Hz
-        # MaximumFreq_Hz    MaxAmp    MinAmp    MeanAmp
-        # AmpSD LabelArea_DataPoints
-        label = [
-            os.path.basename(wavpath),                      # filename
-            c,                                              # Label
-            dt.datetime.now().isoformat(),                  # LabelTimeStamp
-            0.01,                                           # Spec_NStep
-            0.03,                                           # Spec_NWin
-            rect[0],rect[1],rect[2],rect[3],                # Spec_x1, y1, x2, y2
-            rect[0] * 0.01,                                 # LabelStartTime_Seconds
-            rect[2] * 0.01,                                 # LabelEndTime_Seconds
-            rect[1] * freqStep,                             # MinimumFreq_Hz
-            rect[3] * freqStep,                             # MaximumFreq_Hz
-            np.max(boundingBox),                            # MaxAmp
-            np.min(boundingBox),                            # MinAmp
-            np.mean(boundingBox),                           # MeanAmp
-            np.std(boundingBox),                            # AmpSD
-            r[2] * r[3]                                     # LabelArea_DataPoints
-            ]
+            rect = [x1, y1, x2, y2]
 
-        labels += [label]
+            sr,x = scipy.io.wavfile.read(wavpath)
+            spec = SpecGen(wavpath)
+            freqStep = float(sr) / spec.shape[1] / 2
+            boundingBox = spec[x1:x2, y1:y2]
+            # label head:
+            # (wav)Filename    Label    LabelTimeStamp     Spec_NStep
+            # Spec_NWin     Spec_x1     Spec_y1     Spec_x2     Spec_y2
+            # LabelStartTime_Seconds    LabelEndTime_Seconds    MinimumFreq_Hz
+            # MaximumFreq_Hz    MaxAmp    MinAmp    MeanAmp
+            # AmpSD LabelArea_DataPoints
+            label = [
+                os.path.basename(wavpath),                      # filename
+                c,                                              # Label
+                dt.datetime.now().isoformat(),                  # LabelTimeStamp
+                0.01,                                           # Spec_NStep
+                0.03,                                           # Spec_NWin
+                rect[0],rect[1],rect[2],rect[3],                # Spec_x1, y1, x2, y2
+                rect[0] * 0.01,                                 # LabelStartTime_Seconds
+                rect[2] * 0.01,                                 # LabelEndTime_Seconds
+                rect[1] * freqStep,                             # MinimumFreq_Hz
+                rect[3] * freqStep,                             # MaximumFreq_Hz
+                np.max(boundingBox),                            # MaxAmp
+                np.min(boundingBox),                            # MinAmp
+                np.mean(boundingBox),                           # MeanAmp
+                np.std(boundingBox),                            # AmpSD
+                r[2] * r[3]                                     # LabelArea_DataPoints
+                ]
+
+            labels += [label]
 
     return labels
 
