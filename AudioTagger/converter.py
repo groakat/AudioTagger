@@ -4,8 +4,9 @@ import scipy.io.wavfile
 import numpy as np
 import datetime as dt
 import csv
+import math
 
-SpecRows = 360
+SpecRows = 660
 
 def createLabelFilename(jsonFilename, fileAppendix="", ending='.csv'):
     currentWavFilename = jsonFilename
@@ -98,16 +99,16 @@ def getBoxCoordinates(r, spec):
 def convertLabelRectsToRects(rects, wavpath):
     labels = []
     for r, c in rects:
-        if r[2] == 0 or r[3] == 0:
-            label = [
-                os.path.basename(wavpath),                      # filename
-                c,                                              # Label
-                dt.datetime.now().isoformat(),                  # LabelTimeStamp
-                0.01,                                           # Spec_NStep
-                0.03,                                           # Spec_NWin
-                ["Not a box"]
-                ]
-        else:
+        if not (r[2] == 0 or r[3] == 0):
+        #     label = [
+        #         os.path.basename(wavpath),                      # filename
+        #         c,                                              # Label
+        #         dt.datetime.now().isoformat(),                  # LabelTimeStamp
+        #         0.01,                                           # Spec_NStep
+        #         0.03,                                           # Spec_NWin
+        #         ["Not a box"]
+        #         ]
+        # else:
 
             x1, x2, y1, y2 = getBoxCoordinates(r, SpecRows)
 
@@ -138,7 +139,7 @@ def convertLabelRectsToRects(rects, wavpath):
                 np.min(boundingBox),                            # MinAmp
                 np.mean(boundingBox),                           # MeanAmp
                 np.std(boundingBox),                            # AmpSD
-                r[2] * r[3]                                     # LabelArea_DataPoints
+                math.fabs(r[2]) * math.fabs(r[3])               # LabelArea_DataPoints
                 ]
 
             labels += [label]

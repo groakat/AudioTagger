@@ -935,7 +935,7 @@ class AudioTagger(QtGui.QMainWindow):
 
             try:
                 penCol = self.labelTypes[c]
-            except ValueError:                
+            except KeyError:                
                 msgBox = QtGui.QMessageBox()
                 msgBox.setText("File contained undefined class")
                 msgBox.setInformativeText("Class <b>{c}</b> found in saved data. No colour for this class defined. Using standard color. Define colour in top of the source code to fix this error message".format(c=c))
