@@ -54,7 +54,7 @@ def SpecGen(filepath):
 
     return X
 
-def getBoxCoordinates(r, spec):
+def getBoxCoordinates(r, SpecRows):
     """
     Function which parses coordinates of bounding boxes in .json files to x1, x2, y1, and y2 objects.
 
@@ -90,11 +90,11 @@ def getBoxCoordinates(r, spec):
     if y2 > SpecRows:
         y2 = SpecRows
     #Transform y coordinates
-    y1 = (y1 - SpecRows)*-1
-    y2 = (y2 - SpecRows)*-1
+    #y1 = (y1 - SpecRows)#*-1
+    #y2 = (y2 - SpecRows)#*-1
 
 
-    return x1, x2, y2, y1
+    return x1, x2, y1, y2
 
 def convertLabelRectsToRects(rects, wavpath):
     labels = []

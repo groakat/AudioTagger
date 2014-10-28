@@ -667,6 +667,11 @@ class AudioTagger(QtGui.QMainWindow):
         ## Parameters
         nstep = int(sr * self.specNStepMod)
         nwin  = int(sr * self.specNWinMod)
+
+        print nwin
+        print sr
+        print self.specNWinMod
+
         nfft = nwin
 
         # Get all windows of x with length n as a single array, using strides to avoid data duplication
@@ -880,19 +885,68 @@ class AudioTagger(QtGui.QMainWindow):
 
 
     ################### LABELS (SAVE/LOAD/NAVIGATION) #########################
+
+    def getBoxCoordinates(self, r):
+        """
+        Function which parses coordinates of bounding boxes in .json files to x1, x2, y1, and y2 objects.
+
+        Takes account of different methods of drawing bounding boxes, so that coordinates are correct regardless of how bounding boxes are drawn.
+
+        Also takes account of boxes that are accidently drawn outside of the spectrogram.
+
+        """
+        if r[2]>0 and r[3]>0:
+            x1 = r[0]
+            x2 = r[0] + r[2]
+            y1 = r[1]
+            y2 = r[1] + r[3]
+        elif r[2]<0 and r[3]<0:
+            x1 = r[0] + r[2]
+            x2 = r[0]
+            y1 = r[1] + r[3]
+            y2 = r[1]
+        elif r[2]>0 and r[3]<0:
+            x1 = r[0]
+            x2 = r[0] + r[2]
+            y1 = r[1] + r[3]
+            y2 = r[1]
+        else:
+            x1 = r[0] + r[2]
+            x2 = r[0]
+            y1 = r[1]
+            y2 = r[1] + r[3]
+        if x1 < 0:
+            x1 = 0
+        if y1 < 0:
+            y1 = 0
+        if y2 > self.specHeight:
+            y2 = self.specHeight
+        #Transform y coordinates
+        #y1 = (y1 - SpecRows)#*-1
+        #y2 = (y2 - SpecRows)#*-1
+
+
+        return x1, x2, y1, y2
+
     def convertLabelRectsToRects(self):
         labels = []
         for labelRect in self.labelRects:
             if not labelRect:
                 continue
 
-            r = labelRect.rect()
-            rect = [r.x(), r.y(), r.width(), r.height()]
+            r = [labelRect.rect().x(),
+                 labelRect.rect().y(),
+                 labelRect.rect().width(),
+                 labelRect.rect().height()]
+            # rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
 
-            freqStep = float(self.s4p.wav[0]) / self.specHeight / 2
-            boundingBox = self.spec[rect[0]:rect[0] + rect[2],
-                                    rect[1]:rect[1] + rect[3]]
+            freqStep = float(self.s4p.wav[0]) / self.specHeight / 2.0
+            # boundingBox = self.spec[rect[0]:rect[0] + rect[2],
+            #                         rect[1]:rect[1] + rect[3]]
+
+            x1, x2, y1, y2 = self.getBoxCoordinates(r)
+            boundingBox = self.spec[x1:x2, y1:y2]
             # label head:
             # (wav)Filename    Label    LabelTimeStamp     Spec_NStep
             # Spec_NWin     Spec_x1     Spec_y1     Spec_x2     Spec_y2
@@ -905,16 +959,16 @@ class AudioTagger(QtGui.QMainWindow):
                 dt.datetime.now().isoformat(),                  # LabelTimeStamp
                 self.specNStepMod,                              # Spec_NStep
                 self.specNWinMod,                               # Spec_NWin
-                r.x(), r.y(), r.x()+r.width(), r.y()+r.height(),# Spec_x1, y1, x2, y2
-                r.x() * self.specNStepMod,                      # LabelStartTime_Seconds
-                (r.x() + r.width()) * self.specNStepMod,          # LabelEndTime_Seconds
-                r.y() * freqStep,                               # MinimumFreq_Hz
-                (r.y() + r.height()) * freqStep,                # MaximumFreq_Hz
+                x1, y1, x2, y2,                                 # Spec_x1, y1, x2, y2
+                x1 * self.specNStepMod,                         # LabelStartTime_Seconds
+                x2 * self.specNStepMod,                         # LabelEndTime_Seconds
+                y1 * freqStep,                                  # MinimumFreq_Hz
+                y2 * freqStep,                                  # MaximumFreq_Hz
                 np.max(boundingBox),                            # MaxAmp
                 np.min(boundingBox),                            # MinAmp
                 np.mean(boundingBox),                           # MeanAmp
                 np.std(boundingBox),                            # AmpSD
-                r.width() * r.height()                          # LabelArea_DataPoints
+                (x2 - x1) * (y2 - y1)                           # LabelArea_DataPoints
                 ]
 
             labels += [label]
@@ -925,7 +979,15 @@ class AudioTagger(QtGui.QMainWindow):
         self.clearSceneRects()
 
         for l in labels:
-            rect = QtCore.QRectF(float(l[5]),float(l[6]),
+            labelIsEmpty = True
+
+            for item in l:
+                labelIsEmpty = labelIsEmpty and item == ""
+
+            if labelIsEmpty:
+                continue
+
+            rect = QtCore.QRectF(float(l[5]), float(l[6]),
                                  float(l[7]) - float(l[5]),
                                  float(l[8]) - float(l[6]))
             c = l[1]
@@ -979,6 +1041,7 @@ class AudioTagger(QtGui.QMainWindow):
                         "LabelStartTime_Seconds", "LabelEndTime_Seconds", "MinimumFreq_Hz", "MaximumFreq_Hz",
                         "MaxAmp", "MinAmp", "MeanAmp", "AmpSD", "LabelArea_DataPoints"])
             for label in labels:
+
                 wr.writerow(label)
 
         self.contentChanged = False
@@ -1214,7 +1277,7 @@ def main(ignoreSettings=False):
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=labelTypes)
     # w = AudioTagger(basefolder=audiofolder, labelfolder=labelfolder, labelTypes=None)
     w = AudioTagger(basefolder=None, labelfolder=None, labelTypes=None,
-                    ignoreSettings=True)
+                    ignoreSettings=False)
 
     sys.exit(app.exec_())
 
