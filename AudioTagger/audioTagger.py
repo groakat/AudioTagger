@@ -661,17 +661,15 @@ class AudioTagger(QtGui.QMainWindow):
         self.changeSpectrogramResolution(0.001, 0.003)
 
     def SpecGen(self, filepath):
+        """
+        Code to generate spectrogram adapted from code posted on https://mail.python.org/pipermail/chicago/2010-December/007314.html by Ken Schutte (kenshutte@gmail.com)
+        """
 
         sr, x = scipy.io.wavfile.read(filepath)
     
         ## Parameters
         nstep = int(sr * self.specNStepMod)
         nwin  = int(sr * self.specNWinMod)
-
-        print nwin
-        print sr
-        print self.specNWinMod
-
         nfft = nwin
 
         # Get all windows of x with length n as a single array, using strides to avoid data duplication
@@ -928,7 +926,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         return x1, x2, y1, y2
 
-    def convertLabelRectsToRects(self):
+    def convertLabelRectsToRects(self, filepath):
         labels = []
         for labelRect in self.labelRects:
             if not labelRect:
@@ -941,7 +939,10 @@ class AudioTagger(QtGui.QMainWindow):
             # rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
 
-            freqStep = float(self.s4p.wav[0]) / self.specHeight / 2.0
+            # freqStep = float(self.s4p.wav[0]) / self.specHeight / 2.0
+            sr = scipy.io.wavfile.read(filepath)[0]              # sampling rate
+            maxSigFreq = sr / 2.0                               # maxium signal frequency
+            freqStep = self.specHeight / maxSigFreq             # step in freqency for every pixel in y-direction
             # boundingBox = self.spec[rect[0]:rect[0] + rect[2],
             #                         rect[1]:rect[1] + rect[3]]
 
@@ -962,8 +963,8 @@ class AudioTagger(QtGui.QMainWindow):
                 x1, y1, x2, y2,                                 # Spec_x1, y1, x2, y2
                 x1 * self.specNStepMod,                         # LabelStartTime_Seconds
                 x2 * self.specNStepMod,                         # LabelEndTime_Seconds
-                y1 * freqStep,                                  # MinimumFreq_Hz
-                y2 * freqStep,                                  # MaximumFreq_Hz
+                maxSigFreq - (y2 * freqStep),                   # MinimumFreq_Hz
+                maxSigFreq - (y1 * freqStep),                   # MaximumFreq_Hz
                 np.max(boundingBox),                            # MaxAmp
                 np.min(boundingBox),                            # MinAmp
                 np.mean(boundingBox),                           # MeanAmp
@@ -1301,3 +1302,13 @@ class MouseInsideFilterObj(QtCore.QObject):#And this one
 
 if __name__ == "__main__":
     main()
+
+# C:\Users\ucfaalf\Documents\GitHub\AudioTagger\AudioTagger\audioTagger.py in upda
+# teSettings(self, settings)
+#     413         cc = self.contentChanged
+#     414         # update all label colours by forcing a redraw
+# --> 415         self.convertRectsToLabelRects(self.convertLabelRectsToRects())
+#     416         self.contentChanged = cc
+#     417
+
+# TypeError: convertLabelRectsToRects() takes exactly 2 arguments (1 given)

@@ -6,7 +6,7 @@ import datetime as dt
 import csv
 import math
 
-SpecRows = 660
+SpecRows = 360
 
 def createLabelFilename(jsonFilename, fileAppendix="", ending='.csv'):
     currentWavFilename = jsonFilename
