@@ -115,8 +115,10 @@ def convertLabelRectsToRects(rects, wavpath):
             rect = [x1, y1, x2, y2]
 
             sr,x = scipy.io.wavfile.read(wavpath)
+            maxSigFreq = sr / 2.0                               # maxium signal frequency
+            freqStep = SpecRows / maxSigFreq                    # step in freqency for every pixel in y-direction
             spec = SpecGen(wavpath)
-            freqStep = float(sr) / spec.shape[1] / 2
+            # freqStep = float(sr) / spec.shape[1] / 2
             boundingBox = spec[x1:x2, y1:y2]
             # label head:
             # (wav)Filename    Label    LabelTimeStamp     Spec_NStep
@@ -133,8 +135,8 @@ def convertLabelRectsToRects(rects, wavpath):
                 rect[0],rect[1],rect[2],rect[3],                # Spec_x1, y1, x2, y2
                 rect[0] * 0.01,                                 # LabelStartTime_Seconds
                 rect[2] * 0.01,                                 # LabelEndTime_Seconds
-                rect[1] * freqStep,                             # MinimumFreq_Hz
-                rect[3] * freqStep,                             # MaximumFreq_Hz
+                maxSigFreq - (y2 / freqStep),                   # MinimumFreq_Hz
+                maxSigFreq - (y1 / freqStep),                   # MaximumFreq_Hz
                 np.max(boundingBox),                            # MaxAmp
                 np.min(boundingBox),                            # MinAmp
                 np.mean(boundingBox),                           # MeanAmp
