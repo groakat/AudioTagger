@@ -20,6 +20,19 @@ Now you can start the `AudioTagger` by opening a terminal and simply typing
     
 If this does not work, please proceed reading the remainder of the README. Otherwise you are done. :)
 
+### Using the githut client
+On Windows and maybe Mac OSX `git` might not be installed. Then the easiest is to install the github client and synchronize thsi repository.
+
+Once it the repository is synchronized, open a terminal and type
+
+    cd C:\path\to\github\AudioTagger
+
+By replacing `C:\path\to\github\AudioTagger` with the path where the github client saved the AudioTagger repository. The folder you are looking for has a `setup/py` file. Now type
+
+    python setup.py develop
+    
+You should now be able to open the AudioTagger by simply typing `AudioTagger` in the terminal. (You might have to iopen a new terminal for it to work.
+
 ## Dependencies
 
 The program should run with an anaconda installation plus the following dependencies:
