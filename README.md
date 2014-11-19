@@ -20,7 +20,7 @@ Now you can start the `AudioTagger` by opening a terminal and simply typing
     
 If this does not work, please proceed reading the remainder of the README. Otherwise you are done. :)
 
-### Using the githut client
+### Using the github client
 On Windows and maybe Mac OSX `git` might not be installed. Then the easiest is to install the github client and synchronize thsi repository.
 
 Once it the repository is synchronized, open a terminal and type
