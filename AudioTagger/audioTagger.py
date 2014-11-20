@@ -85,6 +85,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.isDeletingRects = False
         self.yscale = 1
 
+        self.unconfiguredLabels = []
+
         self.bgImg = None
         self.tracker = None
         self.scrollView = self.ui.scrollView
@@ -563,6 +565,8 @@ class AudioTagger(QtGui.QMainWindow):
         if not canProceed:
             return
 
+
+        self.unconfiguredLabels = []
         if idx >= 0 and idx < len(self.filelist):
             self.fileidx = idx
             self.resetView()
@@ -1001,15 +1005,18 @@ class AudioTagger(QtGui.QMainWindow):
 
             try:
                 penCol = self.labelTypes[c]
-            except KeyError:                
-                msgBox = QtGui.QMessageBox()
-                msgBox.setText("File contained undefined class")
-                msgBox.setInformativeText("Class <b>{c}</b> found in saved data. No colour for this class defined. Using standard color. Define colour in top of the source code to fix this error message".format(c=c))
-                msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
-                ret = msgBox.exec_()
+            except KeyError:
+                if c not in self.unconfiguredLabels:
+                    msgBox = QtGui.QMessageBox()
+                    msgBox.setText("File contained undefined class")
+                    msgBox.setInformativeText("Class <b>{c}</b> found in saved data. No colour for this class defined. Using standard color. Define colour in top of the source code to fix this error message".format(c=c))
+                    msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+                    ret = msgBox.exec_()
 
-                penCol = QtGui.QColor()
-                penCol.setRgb(0, 0, 200)
+                    penCol = QtGui.QColor()
+                    penCol.setRgb(0, 0, 200)
+
+                    self.unconfiguredLabels += [c]
 
             # labelRect = self.overviewScene.addRect(rect, QtGui.QPen(penCol))
 
