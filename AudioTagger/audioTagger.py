@@ -482,9 +482,13 @@ class AudioTagger(QtGui.QMainWindow):
             self.seekingSound = True
 
     def updateSoundPosition(self):
+        if not self.s4p.playing:
+            self.pauseSound()
+            return
+
         currentTime = dt.datetime.now()
         increment = (currentTime - self.lastMarkerUpdate).total_seconds()
-        self.soundSec += increment  * self.soundSpeed
+        self.soundSec += increment * self.soundSpeed
         self.lastMarkerUpdate = currentTime
 
         self.ui.lbl_audio_position.setText("position: {0}".format(self.soundSec))
@@ -502,7 +506,10 @@ class AudioTagger(QtGui.QMainWindow):
     def pauseSound(self):
         self.playing = False
         self.ui.pb_play.setText("play")
-        self.s4p.pause()
+        try:
+            self.s4p.pause()
+        except ValueError:
+            pass
         self.soundTimer.stop()
 
     def playPauseSound(self):
