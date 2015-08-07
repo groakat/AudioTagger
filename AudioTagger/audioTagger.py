@@ -260,12 +260,22 @@ class AudioTagger(QtGui.QMainWindow):
         wa.setDefaultWidget(self.cle)
 
         self.menu = QtGui.QMenu(self)
+        zAction = self.menu.addAction("send to back")
         delAction = self.menu.addAction("delete")
         self.menu.addAction(wa)
 
         delAction.triggered.connect(self.deleteLabel)
+        zAction.triggered.connect(self.sendLabelToBack)
         wa.triggered.connect(self.lineEditChanged)
 
+    def sendLabelToBack(self):
+        self.activeLabel = self.labelRects.index(self.lastLabelRectContext)
+
+        for i, labelRect in enumerate(self.labelRects):
+            if i == self.activeLabel:
+                labelRect.setZValue(0)
+            else:
+                labelRect.setZValue(labelRect.zValue() + 1)
 
     def deleteLabel(self):
         self.activeLabel = self.labelRects.index(self.lastLabelRectContext)
