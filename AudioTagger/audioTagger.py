@@ -188,6 +188,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.sceneRect = QtCore.QRectF(0, 0, w,h)
         self.overviewScene.setSceneRect(self.sceneRect)
 
+        self.ui.cb_playbackSpeed.clear()
         self.ui.cb_playbackSpeed.insertItems(0, [str(x) for x in self.soundSpeeds])
         self.ui.cb_playbackSpeed.setCurrentIndex(self.soundSpeeds.index(self.soundSpeed))
 
