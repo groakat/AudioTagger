@@ -1183,13 +1183,17 @@ class MouseFilterObj(QtCore.QObject):#And this one
         # print event.type()
 
         if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseRelease:
-            self.parent.releaseInScene()
+            if event.button() == QtCore.Qt.LeftButton:
+                self.parent.releaseInScene()
             # self.isRectangleOpen = not self.isRectangleOpen
+            elif event.button() == QtCore.Qt.MiddleButton:
+                self.parent.seekSound(event.scenePos().x())
 
             # if self.isRectangleOpen:
         if event.type() == QtCore.QEvent.Type.GraphicsSceneMousePress:
-            self.parent.clickInScene(int(event.scenePos().x()),
-                                      int( event.scenePos().y()))
+            if event.button() == QtCore.Qt.LeftButton:
+                self.parent.clickInScene(int(event.scenePos().x()),
+                                          int( event.scenePos().y()))
             # else:
             #     self.parent.closeSceneRectangle()
 
@@ -1293,7 +1297,7 @@ def main(ignoreSettings=False):
     sys.exit(app.exec_())
 
 
-class MouseInsideFilterObj(QtCore.QObject):#And this one
+class MouseInsideFilterObj(QtCore.QObject):
     def __init__(self, enterCallback, leaveCallback):
         QtCore.QObject.__init__(self)
 
