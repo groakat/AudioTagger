@@ -794,6 +794,7 @@ class AudioTagger(QtGui.QMainWindow):
         if self.seekingSound:
             self.mouseEventFilter.isRectangleOpen = False
             self.seekSound(x)
+            return
 
         if self.ui.cb_create.checkState() == QtCore.Qt.CheckState.Checked:
             if not self.mouseInOverview \
