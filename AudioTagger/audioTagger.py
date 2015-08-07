@@ -1101,12 +1101,36 @@ class AudioTagger(QtGui.QMainWindow):
 
         return filename
 
+    def getLabelTimeValue(self, labelRect):
+        return labelRect.rect().x()
+
+    def findNextLabelInTime(self, currentActiveLabel):
+        nearest = None
+        for i, labelRect in enumerate(self.labelRects):
+            if labelRect == self.labelRects[currentActiveLabel]:
+                continue
+
+            diff = self.getLabelTimeValue(labelRect) - \
+                    self.getLabelTimeValue(self.labelRects[currentActiveLabel])
+
+            if diff > 0:
+                if nearest is None:
+                    nearest = (i, diff)
+                elif nearest[1] > diff:
+                    nearest = (i, diff)
+
+        if nearest is not None:
+            return nearest[0]
+        else:
+            return None
 
     def toggleLabels(self):
         if self.activeLabel is None: #iF nothing is selected, highlight the [0] index label when toggle button pressed
             activeLabel = 0
         else:
-            activeLabel = (self.activeLabel + 1) % len(self.labelRects) #Move label index by 1 with every toggle button press
+            activeLabel = self.findNextLabelInTime(self.activeLabel)
+            if activeLabel is None:
+                activeLabel = 0
 
         self.toogleTo(activeLabel)
 
