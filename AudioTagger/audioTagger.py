@@ -132,6 +132,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.tracker.deactivate()
         self.deactivateAllLabelRects()
 
+        self.ui.pb_debug.setText("toggle to last")
+
     ######################## GUI STUFF ########################
     def updateViews(self):
         self.ui.gw_overview.fitInView(self.overviewScene.itemsBoundingRect())
@@ -159,7 +161,7 @@ class AudioTagger(QtGui.QMainWindow):
         ## GUI elements
         self.ui.pb_next.clicked.connect(self.loadNext)
         self.ui.pb_prev.clicked.connect(self.loadPrev)
-        self.ui.pb_debug.clicked.connect(self.debug)
+        self.ui.pb_debug.clicked.connect(self.toggleToLast)
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         # self.ui.pb_edit.clicked.connect(self.toggleEdit)
@@ -1108,6 +1110,8 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.toogleTo(activeLabel)
 
+    def toggleToLast(self):
+        self.toogleTo(len(self.labelRects) - 1)
 
     def toogleTo(self, activeLabel, centerOnActiveLabel=True):
         if self.activeLabel is not None:
