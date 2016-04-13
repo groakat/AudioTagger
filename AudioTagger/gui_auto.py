@@ -7,7 +7,16 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PySide import QtCore, QtGui
+# from PySide import QtCore, QtGui
+
+
+from qimage2ndarray.qt_driver import QtDriver
+
+qt = QtDriver()
+
+QtCore = qt.QtCore
+QtGui = qt.QtGui
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):

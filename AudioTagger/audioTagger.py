@@ -9,8 +9,14 @@ from collections import OrderedDict
 import warnings
 
 import qimage2ndarray as qim2np
+from qimage2ndarray.qt_driver import QtDriver
 
-from PySide import QtCore, QtGui
+qt = QtDriver()
+
+QtCore = qt.QtCore
+QtGui = qt.QtGui
+
+# from PySide import QtCore, QtGui
 
 from sound4python import sound4python as S4P
 
@@ -574,7 +580,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.loadSound(self.filelist[self.fileidx])
         self.setWindowTitle("Audio Tagger " + os.path.basename(self.filelist[self.fileidx]))
 
-        self.scrollView.horizontalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderAction.SliderToMinimum)
+        self.scrollView.horizontalScrollBar().triggerAction(QtGui.QAbstractSlider.SliderToMinimum)
 
         self.ui.cb_file.setCurrentIndex(self.fileidx)
 
@@ -746,7 +752,7 @@ class AudioTagger(QtGui.QMainWindow):
             self.tracker.deactivate()
 
             if not  self.ui.cb_create.checkState() \
-                    == QtCore.Qt.CheckState.Checked:
+                    == QtCore.Qt.Checked:
                 self.activateAllLabelRects()
 
     def enterGV(self, gv):
@@ -816,7 +822,7 @@ class AudioTagger(QtGui.QMainWindow):
             self.seekSound(x)
             return
 
-        if self.ui.cb_create.checkState() == QtCore.Qt.CheckState.Checked:
+        if self.ui.cb_create.checkState() == QtCore.Qt.Checked:
             if not self.mouseInOverview \
             or not self.tracker.active:
                 self.openSceneRectangle(x, y)
@@ -1094,7 +1100,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.contentChanged = False
 
-        if self.ui.cb_create.checkState == QtCore.Qt.CheckState.Checked:
+        if self.ui.cb_create.checkState == QtCore.Qt.Checked:
             self.deactivateAllLabelRects()
 
 
@@ -1216,7 +1222,7 @@ class ScrollAreaEventFilter(QtCore.QObject):#Ask Peter why these are seperate cl
         
     def eventFilter(self, obj, event):
         if type(event) == QtCore.QDynamicPropertyChangeEvent \
-        or event.type() == QtCore.QEvent.Type.MouseMove:
+        or event.type() == QtCore.QEvent.MouseMove:
             self.callback()
 
 
@@ -1229,7 +1235,7 @@ class MouseFilterObj(QtCore.QObject):#And this one
     def eventFilter(self, obj, event):
         # print event.type()
 
-        if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseRelease:
+        if event.type() == QtCore.QEvent.GraphicsSceneMouseRelease:
             if event.button() == QtCore.Qt.LeftButton:
                 self.parent.releaseInScene()
             # self.isRectangleOpen = not self.isRectangleOpen
@@ -1237,14 +1243,14 @@ class MouseFilterObj(QtCore.QObject):#And this one
                 self.parent.seekSound(event.scenePos().x())
 
             # if self.isRectangleOpen:
-        if event.type() == QtCore.QEvent.Type.GraphicsSceneMousePress:
+        if event.type() == QtCore.QEvent.GraphicsSceneMousePress:
             if event.button() == QtCore.Qt.LeftButton:
                 self.parent.clickInScene(int(event.scenePos().x()),
                                           int( event.scenePos().y()))
             # else:
             #     self.parent.closeSceneRectangle()
 
-        if event.type() == QtCore.QEvent.Type.GraphicsSceneMouseMove:
+        if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
             if self.parent.isRectangleOpen:
                 if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
                     self.parent.resizeSceneRectangle(int(event.scenePos().x()), 
@@ -1259,7 +1265,7 @@ class KeyboardFilterObj(QtCore.QObject):
         
     def eventFilter(self, obj, event):
         # print event.type()
-        if event.type() == QtCore.QEvent.Type.KeyPress:
+        if event.type() == QtCore.QEvent.KeyPress:
             if event.key() == QtCore.Qt.Key_Tab:
                 self.parent.toggleLabels()
             elif event.key() == QtCore.Qt.Key_Left:
@@ -1304,7 +1310,7 @@ class MovableGraphicsRectItem(QtGui.QGraphicsRectItem):
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def deactivate(self):
-        self.setFlags(not QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setCursor(QtCore.Qt.ArrowCursor)
 
 def main(ignoreSettings=False):
@@ -1352,10 +1358,10 @@ class MouseInsideFilterObj(QtCore.QObject):
         self.leaveCallback = leaveCallback
 
     def eventFilter(self, obj, event):
-        if event.type() == QtCore.QEvent.Type.Enter:
+        if event.type() == QtCore.QEvent.Enter:
             self.enterCallback(obj)
 
-        if event.type() == QtCore.QEvent.Type.Leave:
+        if event.type() == QtCore.QEvent.Leave:
             self.leaveCallback(obj)
 
         return False

@@ -1,7 +1,13 @@
 import sys
 import copy
 import numpy as np
-from PySide import QtCore, QtGui
+
+from qimage2ndarray.qt_driver import QtDriver
+
+qt = QtDriver()
+
+QtCore = qt.QtCore
+QtGui = qt.QtGui
 
 class Test(QtGui.QMainWindow):
     def __init__(self):
@@ -179,7 +185,7 @@ class ResizeableGraphicsRectItem(QtGui.QGraphicsRectItem):
 
     def deactivate(self):
         self.activated = False
-        self.setFlags(not QtGui.QGraphicsItem.ItemIsMovable | QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
+        self.setFlags(QtGui.QGraphicsItem.ItemSendsScenePositionChanges)
         self.setCursor(QtCore.Qt.ArrowCursor)
 
     def contextMenuEvent(self, event):
