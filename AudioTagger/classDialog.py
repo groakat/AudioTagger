@@ -15,7 +15,7 @@ from AudioTagger.classDialog_auto import Ui_Dialog
 import copy
 
 class ClassDialog(QtGui.QDialog):
-    settingsSig = QtCore.Signal(list)
+    settingsSig = QtCore.pyqtSignal(list)
 
     def __init__(self, parent, classSettings=None, keySequences=None):
         super(ClassDialog, self).__init__(parent)
