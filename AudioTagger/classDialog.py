@@ -3,7 +3,14 @@ __author__ = 'peter'
 import sys
 import warnings
 from collections import OrderedDict
-from PySide import QtCore, QtGui
+
+from qimage2ndarray.qt_driver import QtDriver
+
+qt = QtDriver()
+
+QtCore = qt.QtCore
+QtGui = qt.QtGui
+
 from AudioTagger.classDialog_auto import Ui_Dialog
 import copy
 
