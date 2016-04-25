@@ -8,13 +8,9 @@ import datetime as dt
 from collections import OrderedDict
 import warnings
 
+from PySide import QtCore, QtGui
+
 import qimage2ndarray as qim2np
-from qimage2ndarray.qt_driver import QtDriver
-
-qt = QtDriver()
-
-QtCore = qt.QtCore
-QtGui = qt.QtGui
 
 # from PySide import QtCore, QtGui
 
