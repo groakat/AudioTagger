@@ -2,12 +2,7 @@ import sys
 import copy
 import numpy as np
 
-from qimage2ndarray.qt_driver import QtDriver
-
-qt = QtDriver()
-
-QtCore = qt.QtCore
-QtGui = qt.QtGui
+from PySide import QtCore, QtGui
 
 class Test(QtGui.QMainWindow):
     def __init__(self):
