@@ -3,19 +3,13 @@ __author__ = 'peter'
 import sys
 import warnings
 from collections import OrderedDict
-
-from qimage2ndarray.qt_driver import QtDriver
-
-qt = QtDriver()
-
-QtCore = qt.QtCore
-QtGui = qt.QtGui
+from PySide import QtCore, QtGui
 
 from AudioTagger.classDialog_auto import Ui_Dialog
 import copy
 
 class ClassDialog(QtGui.QDialog):
-    settingsSig = QtCore.pyqtSignal(list)
+    settingsSig = QtCore.Signal(list)
 
     def __init__(self, parent, classSettings=None, keySequences=None):
         super(ClassDialog, self).__init__(parent)
