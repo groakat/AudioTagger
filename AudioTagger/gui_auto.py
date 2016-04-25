@@ -10,12 +10,7 @@
 # from PySide import QtCore, QtGui
 
 
-from qimage2ndarray.qt_driver import QtDriver
-
-qt = QtDriver()
-
-QtCore = qt.QtCore
-QtGui = qt.QtGui
+from PySide import QtCore, QtGui
 
 
 class Ui_MainWindow(object):
