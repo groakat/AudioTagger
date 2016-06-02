@@ -853,7 +853,7 @@ class AudioTagger(QtGui.QMainWindow):
                                           self.ui.cb_labelType.currentText(),
                                           rectChangedCallback=self.labelRectChangedSlot)
         self.labelRect.deactivate()
-        self.labelRect.setRect(x, y, 1, 1)
+        self.labelRect.setRect(x, y, 20, 20)
         self.labelRect.setColor(penCol)
         self.labelRect.setResizeBoxColor(QtGui.QColor(255,255,255,50))
         self.labelRect.setupInfoTextItem(fontSize=12)
