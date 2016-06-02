@@ -15,9 +15,20 @@ class Ui_Dialog(object):
         Dialog.resize(678, 39)
         self.verticalLayout = QtGui.QVBoxLayout(Dialog)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.scrollArea = QtGui.QScrollArea()
+
+        self.center_widget = QtGui.QWidget()        
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
-        self.verticalLayout.addLayout(self.gridLayout)
+        self.center_widget.setLayout(self.gridLayout)
+
+
+        self.scrollArea.setWidget(self.center_widget)
+        self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.scrollArea.setWidgetResizable(True)
+
+        self.verticalLayout.addWidget(self.center_widget)
+
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Apply|QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)

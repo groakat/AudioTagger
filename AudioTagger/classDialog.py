@@ -107,6 +107,14 @@ class ClassDialog(QtGui.QDialog):
         self.labelSetCnt += 1
         self.creatingNewLabelSet = False
 
+        self.ui.scrollArea.viewport().updateGeometry()
+        self.ui.scrollArea.viewport().update()
+        self.ui.scrollArea.updateGeometry()
+
+        # scroll->viewport()->updateGeometry();
+        # scroll->viewport()->update();
+        # scroll->update();
+
 
     def selectColor(self, idx):
         color = QtGui.QColorDialog.getColor()
