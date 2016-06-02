@@ -20,6 +20,7 @@ class Ui_Dialog(object):
         self.center_widget = QtGui.QWidget()        
         self.gridLayout = QtGui.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
+        self.gridLayout.setVerticalSpacing(0)
         self.center_widget.setLayout(self.gridLayout)
 
 
@@ -27,7 +28,7 @@ class Ui_Dialog(object):
         self.scrollArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.scrollArea.setWidgetResizable(True)
 
-        self.verticalLayout.addWidget(self.center_widget)
+        self.verticalLayout.addWidget(self.scrollArea)
 
         self.buttonBox = QtGui.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
