@@ -511,7 +511,8 @@ class AudioTagger(QtGui.QMainWindow):
 
     def playSound(self):
         self.playing = True
-        self.ui.pb_play.setText("pause")
+        self.ui.pb_play.setToolTip("pause")
+        self.ui.pb_play.load(self.ui.iconFolder + "/fa-pause.svg")
         self.s4p.play()
         self.soundSec = self.s4p.seekSec
 
@@ -520,7 +521,9 @@ class AudioTagger(QtGui.QMainWindow):
 
     def pauseSound(self):
         self.playing = False
-        self.ui.pb_play.setText("play")
+        # self.ui.pb_play.setText("play")
+        self.ui.pb_play.setToolTip("play")
+        self.ui.pb_play.load(self.ui.iconFolder + "/fa-play.svg")
         try:
             self.s4p.pause()
         except ValueError:
