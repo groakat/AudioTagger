@@ -16,7 +16,7 @@ import qimage2ndarray as qim2np
 
 from sound4python import sound4python as S4P
 
-from AudioTagger.gui_auto import Ui_MainWindow
+from AudioTagger.main_gui import Ui_MainWindow
 import AudioTagger.classDialog as CD
 import AudioTagger.modifyableRect as MR
 import AudioTagger.colourMap as CM
@@ -134,7 +134,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.tracker.deactivate()
         self.deactivateAllLabelRects()
 
-        self.ui.pb_debug.setText("toggle to last")
+        # self.ui.pb_debug.setText("toggle to last")
 
     ######################## GUI STUFF ########################
     def updateViews(self):
@@ -163,7 +163,7 @@ class AudioTagger(QtGui.QMainWindow):
         ## GUI elements
         self.ui.pb_next.clicked.connect(self.loadNext)
         self.ui.pb_prev.clicked.connect(self.loadPrev)
-        self.ui.pb_debug.clicked.connect(self.toggleToLast)
+        self.ui.pb_toggle_back.clicked.connect(self.toggleToLast)
         self.ui.pb_save.clicked.connect(self.saveSceneRects)
         self.ui.pb_toggle.clicked.connect(self.toggleLabels)
         # self.ui.pb_edit.clicked.connect(self.toggleEdit)
