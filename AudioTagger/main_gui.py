@@ -142,6 +142,7 @@ class Ui_MainWindow(object):
         self.lbl_audio_position.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lbl_audio_position.setObjectName("lbl_audio_position")
 
+        self.lbl_followSound = QtGui.QLabel(self.centralwidget)
         self.cb_followSound = QtGui.QCheckBox(self.centralwidget)
         self.cb_followSound.setObjectName("cb_followSound")
 
@@ -153,6 +154,7 @@ class Ui_MainWindow(object):
         self.lbl_zoom.setSizePolicy(sizePolicy)
         self.lbl_zoom.setObjectName("lbl_zoom")
 
+        self.lbl_playbackSpeed = QtGui.QLabel(self.centralwidget)
         self.cb_playbackSpeed = QtGui.QComboBox(self.centralwidget)
         self.cb_playbackSpeed.setObjectName("cb_playbackSpeed")
 
@@ -185,6 +187,9 @@ class Ui_MainWindow(object):
         self.sound_parts_widget = QtGui.QWidget(self.centralwidget)
         self.sound_parts_layout = QtGui.QVBoxLayout(self.sound_parts_widget)
 
+        self.sound_settings_widget = QtGui.QWidget(self.centralwidget)
+        self.sound_settings_layout = QtGui.QFormLayout(self.sound_settings_widget)
+
         self.spec_parts_widget = QtGui.QWidget(self.centralwidget)
         self.spec_parts_layout = QtGui.QVBoxLayout(self.spec_parts_widget)
 
@@ -209,13 +214,15 @@ class Ui_MainWindow(object):
         self.sound_spec_layout.addWidget(self.spec_parts_widget)
 
         self.sound_parts_layout.addWidget(self.sound_controls_widget)
-        self.sound_parts_layout.addWidget(self.cb_followSound)
-        self.sound_parts_layout.addWidget(self.cb_playbackSpeed)
+        self.sound_parts_layout.addWidget(self.sound_settings_widget)
 
         self.sound_controls_layout.addWidget(self.pb_prev)
         self.sound_controls_layout.addWidget(self.pb_stop)
         self.sound_controls_layout.addWidget(self.pb_play)
         self.sound_controls_layout.addWidget(self.pb_next)
+
+        self.sound_settings_layout.addRow(self.lbl_followSound, self.cb_followSound)
+        self.sound_settings_layout.addRow(self.lbl_playbackSpeed, self.cb_playbackSpeed)
 
         self.spec_parts_layout.addWidget(self.spec_interact_widget)
         self.spec_parts_layout.addWidget(self.cb_labelType)
@@ -244,9 +251,9 @@ class Ui_MainWindow(object):
         # self.pb_stop.setText(QtGui.QApplication.translate("MainWindow", "stop", None, QtGui.QApplication.UnicodeUTF8))
         # self.pb_seek.setText(QtGui.QApplication.translate("MainWindow", "seek", None, QtGui.QApplication.UnicodeUTF8))
         # self.lbl_audio_position.setText(QtGui.QApplication.translate("MainWindow", "position:", None, QtGui.QApplication.UnicodeUTF8))
-        # self.cb_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
         # self.lbl_zoom.setText(QtGui.QApplication.translate("MainWindow", " Vertical zoom: 1x", None, QtGui.QApplication.UnicodeUTF8))
-        # # self.label.setText(QtGui.QApplication.translate("MainWindow", "playback speed:", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_playbackSpeed.setText(QtGui.QApplication.translate("MainWindow", "playback speed:", None, QtGui.QApplication.UnicodeUTF8))
         # # self.label_2.setText(QtGui.QApplication.translate("MainWindow", "spectrogram type:", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_specType.setItemText(0, QtGui.QApplication.translate("MainWindow", "audible range", None, QtGui.QApplication.UnicodeUTF8))
         self.cb_specType.setItemText(1, QtGui.QApplication.translate("MainWindow", "ultra sonic range", None, QtGui.QApplication.UnicodeUTF8))
