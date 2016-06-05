@@ -106,12 +106,17 @@ class Ui_MainWindow(object):
         # self.pb_edit.setObjectName("pb_edit")
 
 
-        self.cb_create = QtGui.QCheckBox(self.centralwidget)
-        self.cb_create.setChecked(True)
-        self.cb_create.setObjectName("cb_create")
+        self.pb_toggle_create = SVGButton(self.centralwidget)
+        self.pb_toggle_create.load(self.iconFolder + '/fa-toggle-on.svg')
+        self.pb_toggle_create.setToolTip("Click to modify annotations")
 
-        self.cb_labelType = QtGui.QComboBox(self.centralwidget)
-        self.cb_labelType.setObjectName("cb_labelType")
+        self.lbl_spec_modify = QtGui.QLabel(self.centralwidget)
+        self.lbl_spec_create = QtGui.QLabel(self.centralwidget)
+
+
+        # self.cb_create = QtGui.QCheckBox(self.centralwidget)
+        # self.cb_create.setChecked(True)
+        # self.cb_create.setObjectName("cb_create")
 
         self.lbl_audio = QtGui.QLabel(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -130,8 +135,9 @@ class Ui_MainWindow(object):
         self.pb_stop.load(self.iconFolder + '/fa-stop.svg')
         self.pb_stop.setToolTip("Stop and reset sound")
 
-        self.pb_seek = QtGui.QPushButton(self.centralwidget)
-        self.pb_seek.setObjectName("pb_seek")
+        self.pb_seek = SVGButton(self.centralwidget)
+        self.pb_seek.load(self.iconFolder + '/fa-map-pin.svg')
+        self.pb_seek.setToolTip("Seek")
 
         self.lbl_audio_position = QtGui.QLabel(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -141,27 +147,33 @@ class Ui_MainWindow(object):
         self.lbl_audio_position.setSizePolicy(sizePolicy)
         self.lbl_audio_position.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lbl_audio_position.setObjectName("lbl_audio_position")
+        self.lbl_audio_position.setVisible(False)
 
         self.lbl_followSound = QtGui.QLabel(self.centralwidget)
         self.cb_followSound = QtGui.QCheckBox(self.centralwidget)
         self.cb_followSound.setObjectName("cb_followSound")
 
-        self.lbl_zoom = QtGui.QLabel(self.centralwidget)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lbl_zoom.sizePolicy().hasHeightForWidth())
-        self.lbl_zoom.setSizePolicy(sizePolicy)
-        self.lbl_zoom.setObjectName("lbl_zoom")
+        # self.lbl_zoom = QtGui.QLabel(self.centralwidget)
+        # sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.lbl_zoom.sizePolicy().hasHeightForWidth())
+        # self.lbl_zoom.setSizePolicy(sizePolicy)
+        # self.lbl_zoom.setObjectName("lbl_zoom")
 
         self.lbl_playbackSpeed = QtGui.QLabel(self.centralwidget)
         self.cb_playbackSpeed = QtGui.QComboBox(self.centralwidget)
         self.cb_playbackSpeed.setObjectName("cb_playbackSpeed")
 
+        self.lbl_specType = QtGui.QLabel(self.centralwidget)
         self.cb_specType = QtGui.QComboBox(self.centralwidget)
         self.cb_specType.setObjectName("cb_specType")
         self.cb_specType.addItem("")
         self.cb_specType.addItem("")
+
+        self.lbl_labelType = QtGui.QLabel(self.centralwidget)
+        self.cb_labelType = QtGui.QComboBox(self.centralwidget)
+        self.cb_labelType.setObjectName("cb_labelType")
 
         self.cb_file = QtGui.QComboBox(self.centralwidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
@@ -177,27 +189,49 @@ class Ui_MainWindow(object):
 
         self.control_info_widget = QtGui.QWidget(self.centralwidget)
         self.control_info_splitter = QtGui.QHBoxLayout(self.control_info_widget)
+        self.control_info_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
 
         self.file_control_widget = QtGui.QWidget(self.centralwidget)
         self.file_control_layout = QtGui.QVBoxLayout(self.file_control_widget)
+        self.file_control_layout.setContentsMargins(0,0,0,0)
 
         self.sound_spec_widget = QtGui.QWidget(self.centralwidget)
         self.sound_spec_layout = QtGui.QHBoxLayout(self.sound_spec_widget)
+        self.sound_spec_layout.setContentsMargins(0,0,0,0)
 
         self.sound_parts_widget = QtGui.QWidget(self.centralwidget)
         self.sound_parts_layout = QtGui.QVBoxLayout(self.sound_parts_widget)
+        self.sound_parts_layout.setSpacing(10)
+        self.sound_parts_layout.setContentsMargins(0,0,0,0)
 
         self.sound_settings_widget = QtGui.QWidget(self.centralwidget)
         self.sound_settings_layout = QtGui.QFormLayout(self.sound_settings_widget)
+        self.sound_settings_layout.setContentsMargins(0,0,0,0)
 
         self.spec_parts_widget = QtGui.QWidget(self.centralwidget)
         self.spec_parts_layout = QtGui.QVBoxLayout(self.spec_parts_widget)
+        self.spec_parts_layout.setContentsMargins(0,0,0,0)
 
         self.sound_controls_widget = QtGui.QWidget(self.centralwidget)
         self.sound_controls_layout = QtGui.QHBoxLayout(self.sound_controls_widget)
+        self.sound_controls_layout.setSpacing(30)
+        self.sound_controls_layout.setContentsMargins(0,0,0,0)
 
         self.spec_interact_widget = QtGui.QWidget(self.centralwidget)
         self.spec_interact_layout = QtGui.QHBoxLayout(self.spec_interact_widget)
+        self.spec_interact_layout.setSpacing(30)
+        self.spec_interact_layout.setContentsMargins(0,0,0,0)
+
+        self.spec_settings_widget = QtGui.QWidget(self.centralwidget)
+        self.spec_settings_layout = QtGui.QFormLayout(self.spec_settings_widget)
+        self.spec_settings_layout.setSpacing(10)
+        self.spec_settings_layout.setContentsMargins(0,0,0,0)
+
+
+        self.create_modify_widget = QtGui.QWidget(self.centralwidget)
+        self.create_modify_layout = QtGui.QHBoxLayout(self.create_modify_widget)
+        self.create_modify_layout.setSpacing(5)
+        self.create_modify_layout.setContentsMargins(0,0,0,0)
 
 
     def fill_layouts(self):
@@ -216,22 +250,34 @@ class Ui_MainWindow(object):
         self.sound_parts_layout.addWidget(self.sound_controls_widget)
         self.sound_parts_layout.addWidget(self.sound_settings_widget)
 
+        self.sound_controls_layout.addStretch(0)
         self.sound_controls_layout.addWidget(self.pb_prev)
         self.sound_controls_layout.addWidget(self.pb_stop)
         self.sound_controls_layout.addWidget(self.pb_play)
+        self.sound_controls_layout.addWidget(self.pb_seek)
         self.sound_controls_layout.addWidget(self.pb_next)
+        self.sound_controls_layout.addStretch(0)
 
         self.sound_settings_layout.addRow(self.lbl_followSound, self.cb_followSound)
         self.sound_settings_layout.addRow(self.lbl_playbackSpeed, self.cb_playbackSpeed)
 
         self.spec_parts_layout.addWidget(self.spec_interact_widget)
-        self.spec_parts_layout.addWidget(self.cb_labelType)
-        self.spec_parts_layout.addWidget(self.cb_specType)
+        self.spec_parts_layout.addWidget(self.spec_settings_widget)
 
-        self.spec_interact_layout.addWidget(self.cb_create)
+        self.spec_interact_layout.addStretch(0)
+        # self.spec_interact_layout.addWidget(self.cb_create)
+        self.spec_interact_layout.addWidget(self.create_modify_widget)
         self.spec_interact_layout.addWidget(self.pb_toggle_back)
         self.spec_interact_layout.addWidget(self.pb_toggle)
         self.spec_interact_layout.addWidget(self.pb_save)
+        self.spec_interact_layout.addStretch(0)
+
+        self.spec_settings_layout.addRow(self.lbl_labelType, self.cb_labelType)
+        self.spec_settings_layout.addRow(self.lbl_specType, self.cb_specType)
+
+        self.create_modify_layout.addWidget(self.lbl_spec_modify)
+        self.create_modify_layout.addWidget(self.pb_toggle_create)
+        self.create_modify_layout.addWidget(self.lbl_spec_create)
 
         self.centralwidget.setLayout(self.structure_layout)
 
@@ -254,14 +300,17 @@ class Ui_MainWindow(object):
         self.lbl_followSound.setText(QtGui.QApplication.translate("MainWindow", "follow sound", None, QtGui.QApplication.UnicodeUTF8))
         # self.lbl_zoom.setText(QtGui.QApplication.translate("MainWindow", " Vertical zoom: 1x", None, QtGui.QApplication.UnicodeUTF8))
         self.lbl_playbackSpeed.setText(QtGui.QApplication.translate("MainWindow", "playback speed:", None, QtGui.QApplication.UnicodeUTF8))
-        # # self.label_2.setText(QtGui.QApplication.translate("MainWindow", "spectrogram type:", None, QtGui.QApplication.UnicodeUTF8))
-        self.cb_specType.setItemText(0, QtGui.QApplication.translate("MainWindow", "audible range", None, QtGui.QApplication.UnicodeUTF8))
-        self.cb_specType.setItemText(1, QtGui.QApplication.translate("MainWindow", "ultra sonic range", None, QtGui.QApplication.UnicodeUTF8))
-        # self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
-        # self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
-        # self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))
-        # self.actionExport_settings.setText(QtGui.QApplication.translate("MainWindow", "export settings", None, QtGui.QApplication.UnicodeUTF8))
-        # self.actionImport_settings.setText(QtGui.QApplication.translate("MainWindow", "import settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_specType.setText(QtGui.QApplication.translate("MainWindow", "spectrogram range", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_labelType.setText(QtGui.QApplication.translate("MainWindow", "active label", None, QtGui.QApplication.UnicodeUTF8))
+        self.cb_specType.setItemText(0, QtGui.QApplication.translate("MainWindow", "audible", None, QtGui.QApplication.UnicodeUTF8))
+        self.cb_specType.setItemText(1, QtGui.QApplication.translate("MainWindow", "ultra sonic", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_spec_create.setText(QtGui.QApplication.translate("MainWindow", "create", None, QtGui.QApplication.UnicodeUTF8))
+        self.lbl_spec_modify.setText(QtGui.QApplication.translate("MainWindow", "modify", None, QtGui.QApplication.UnicodeUTF8))
+        self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionOpen_folder.setText(QtGui.QApplication.translate("MainWindow", "Open folder", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionExport_settings.setText(QtGui.QApplication.translate("MainWindow", "export settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.actionImport_settings.setText(QtGui.QApplication.translate("MainWindow", "import settings", None, QtGui.QApplication.UnicodeUTF8))
 
 
 class SVGButton(QtGui.QPushButton):

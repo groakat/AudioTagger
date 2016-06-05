@@ -73,6 +73,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundSpeed = 1
         self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
 
+        self.createOn = True
 
         self.audibleRange = True
         self.specNStepMod = 0.01    # horizontal resolution of spectogram 0.01
@@ -134,6 +135,9 @@ class AudioTagger(QtGui.QMainWindow):
         self.tracker.deactivate()
         self.deactivateAllLabelRects()
 
+        self.createOn = True
+
+
         # self.ui.pb_debug.setText("toggle to last")
 
     ######################## GUI STUFF ########################
@@ -171,7 +175,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.pb_stop.clicked.connect(self.stopSound)
         self.ui.pb_seek.clicked.connect(self.activateSoundSeeking)
         self.ui.cb_file.activated.connect(self.selectFromFilelist)
-        self.ui.cb_create.toggled.connect(self.toogleCreateMode)
+        # self.ui.cb_create.toggled.connect(self.toogleCreateMode)
         self.ui.cb_playbackSpeed.activated.connect(self.selectPlaybackSpeed)
         self.ui.cb_specType.activated.connect(self.selectSpectrogramMode)
 
@@ -179,6 +183,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.ui.actionOpen_folder.triggered.connect(self.openFolder)
         self.ui.actionClass_settings.triggered.connect(self.openClassSettings)
         self.ui.actionExport_settings.triggered.connect(self.exportSettings)
+
+        self.ui.pb_toggle_create.clicked.connect(self.toogleCreateMode)
 
     def configureElements(self):
         self.scrollView.setSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Ignored)
@@ -217,7 +223,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.yscale *= yscale
         self.scrollView.scale(1, yscale)
 
-        self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
+        # self.ui.lbl_zoom.setText("Vertical zoom: {0:.1f}x".format(self.yscale))
         self.setZoomBoundingBox()
 
     def selectLabel0(self):
@@ -306,10 +312,14 @@ class AudioTagger(QtGui.QMainWindow):
             if lr:
                 lr.activate()
 
-    def toogleCreateMode(self, createOn):
-        if createOn:
+    def toogleCreateMode(self):
+        if not self.createOn:
+            self.createOn = True
+            self.ui.pb_toggle_create.load(self.ui.iconFolder + "/fa-toggle-on.svg")
             self.deactivateAllLabelRects()
         else:
+            self.createOn = False
+            self.ui.pb_toggle_create.load(self.ui.iconFolder + "/fa-toggle-off.svg")
             self.activateAllLabelRects()
 
         self.toogleTo(None)
@@ -750,8 +760,7 @@ class AudioTagger(QtGui.QMainWindow):
             self.mouseInOverview = False
             self.tracker.deactivate()
 
-            if not  self.ui.cb_create.checkState() \
-                    == QtCore.Qt.Checked:
+            if not self.createOn:
                 self.activateAllLabelRects()
 
     def enterGV(self, gv):
@@ -821,7 +830,8 @@ class AudioTagger(QtGui.QMainWindow):
             self.seekSound(x)
             return
 
-        if self.ui.cb_create.checkState() == QtCore.Qt.Checked:
+        # if self.ui.cb_create.checkState() == QtCore.Qt.Checked:
+        if self.createOn:
             if not self.mouseInOverview \
             or not self.tracker.active:
                 self.openSceneRectangle(x, y)
@@ -1099,7 +1109,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.contentChanged = False
 
-        if self.ui.cb_create.checkState == QtCore.Qt.Checked:
+        if self.createOn:#self.ui.cb_create.checkState == QtCore.Qt.Checked:
             self.deactivateAllLabelRects()
 
 
