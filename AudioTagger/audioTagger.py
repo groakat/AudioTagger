@@ -516,8 +516,8 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundSec += increment * self.soundSpeed
         self.lastMarkerUpdate = currentTime
 
-        self.ui.lbl_audio_position.setText("position: {0}".format(self.soundSec))
         self.updateSoundMarker()
+        self.update_info_viewer()
 
     def playSound(self):
         self.playing = True
@@ -1113,6 +1113,9 @@ class AudioTagger(QtGui.QMainWindow):
             self.deactivateAllLabelRects()
 
 
+        self.update_info_viewer()
+
+
     def createLabelFilename(self, fileAppendix="-sceneRect", ending='.json'):
         currentWavFilename = self.filelist[self.fileidx]
         if currentWavFilename.endswith('.wav'):
@@ -1134,6 +1137,9 @@ class AudioTagger(QtGui.QMainWindow):
         nearest = None
         for i, labelRect in enumerate(self.labelRects):
             if labelRect == self.labelRects[currentActiveLabel]:
+                continue
+
+            if labelRect is None:
                 continue
 
             diff = self.getLabelTimeValue(labelRect) - \
@@ -1224,6 +1230,37 @@ class AudioTagger(QtGui.QMainWindow):
             return True
 
 
+    def count_annotations(self):
+        if not self.labelRects:
+            return {}
+
+        d = {}
+        for labelRect in self.labelRects:
+            if not labelRect:
+                continue
+            try:
+                d[labelRect.infoString] += 1
+            except KeyError:
+                d[labelRect.infoString] = 1
+
+        return d
+
+    def update_info_viewer(self):
+        s = ''
+        # s += "<p><b>File:</b> {}</p>".format(self.filelist[self.fileidx])
+        s += "<p><b>Sound position:</b> {} sec</p>".format(self.soundSec)
+        c = self.count_annotations()
+
+        if c:
+            s += '<p><b>Annotations:</b></p><p style=" margin-left: 30px;">'
+            for k in sorted(c.keys()):
+                s += '{}  [ {} ]<br>'.format(k, c[k])
+
+            s += "</p}"
+        # self.ui.info_viewer.setHtml(s)
+        self.ui.info_viewer.setText(s)
+
+
 class ScrollAreaEventFilter(QtCore.QObject):#Ask Peter why these are seperate classes?
     def __init__(self, callback):
         QtCore.QObject.__init__(self)
@@ -1250,6 +1287,8 @@ class MouseFilterObj(QtCore.QObject):#And this one
             # self.isRectangleOpen = not self.isRectangleOpen
             elif event.button() == QtCore.Qt.MiddleButton:
                 self.parent.seekSound(event.scenePos().x())
+
+            self.parent.update_info_viewer()
 
             # if self.isRectangleOpen:
         if event.type() == QtCore.QEvent.GraphicsSceneMousePress:

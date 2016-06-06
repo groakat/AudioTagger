@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
         self.centralwidget = QtGui.QWidget(MainWindow)
 
         self.create_graphic_views()
-        self.create_buttons()
+        self.create_elements()
         self.create_layouts()
         self.fill_layouts()
 
@@ -79,7 +79,7 @@ class Ui_MainWindow(object):
         self.scrollView.setObjectName("scrollView")
 
 
-    def create_buttons(self):
+    def create_elements(self):
         self.iconFolder = SVGButton.getIconFolder()
 
         self.pb_prev = SVGButton(self.centralwidget)
@@ -183,6 +183,14 @@ class Ui_MainWindow(object):
         self.cb_file.setSizePolicy(sizePolicy)
         self.cb_file.setObjectName("cb_file")
 
+        # self.info_viewer = QtGui.QLabel(self.centralwidget)
+        # self.info_viewer = QtGui.QTextEdit(self.centralwidget)
+        self.info_viewer = SmallEdit(self.centralwidget)
+
+        # self.info_viewer.setMinimumSize(100, 10)
+        # self.info_viewer.setFixedSize(100, 100)
+        # self.info_viewer.setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored)
+
 
     def create_layouts(self):
         self.structure_layout = QtGui.QVBoxLayout(self.centralwidget)
@@ -194,6 +202,7 @@ class Ui_MainWindow(object):
         self.file_control_widget = QtGui.QWidget(self.centralwidget)
         self.file_control_layout = QtGui.QVBoxLayout(self.file_control_widget)
         self.file_control_layout.setContentsMargins(0,0,0,0)
+        self.file_control_widget.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
 
         self.sound_spec_widget = QtGui.QWidget(self.centralwidget)
         self.sound_spec_layout = QtGui.QHBoxLayout(self.sound_spec_widget)
@@ -214,12 +223,12 @@ class Ui_MainWindow(object):
 
         self.sound_controls_widget = QtGui.QWidget(self.centralwidget)
         self.sound_controls_layout = QtGui.QHBoxLayout(self.sound_controls_widget)
-        self.sound_controls_layout.setSpacing(30)
+        self.sound_controls_layout.setSpacing(10)
         self.sound_controls_layout.setContentsMargins(0,0,0,0)
 
         self.spec_interact_widget = QtGui.QWidget(self.centralwidget)
         self.spec_interact_layout = QtGui.QHBoxLayout(self.spec_interact_widget)
-        self.spec_interact_layout.setSpacing(30)
+        self.spec_interact_layout.setSpacing(10)
         self.spec_interact_layout.setContentsMargins(0,0,0,0)
 
         self.spec_settings_widget = QtGui.QWidget(self.centralwidget)
@@ -240,6 +249,7 @@ class Ui_MainWindow(object):
         self.structure_layout.addWidget(self.control_info_widget)
 
         self.control_info_splitter.addWidget(self.file_control_widget)
+        self.control_info_splitter.addWidget(self.info_viewer)
 
         self.file_control_layout.addWidget(self.sound_spec_widget)
         self.file_control_layout.addWidget(self.cb_file)
@@ -254,8 +264,9 @@ class Ui_MainWindow(object):
         self.sound_controls_layout.addWidget(self.pb_prev)
         self.sound_controls_layout.addWidget(self.pb_stop)
         self.sound_controls_layout.addWidget(self.pb_play)
-        self.sound_controls_layout.addWidget(self.pb_seek)
         self.sound_controls_layout.addWidget(self.pb_next)
+        self.sound_controls_layout.addSpacing(15)
+        self.sound_controls_layout.addWidget(self.pb_seek)
         self.sound_controls_layout.addStretch(0)
 
         self.sound_settings_layout.addRow(self.lbl_followSound, self.cb_followSound)
@@ -311,6 +322,14 @@ class Ui_MainWindow(object):
         self.actionClass_settings.setText(QtGui.QApplication.translate("MainWindow", "Class settings", None, QtGui.QApplication.UnicodeUTF8))
         self.actionExport_settings.setText(QtGui.QApplication.translate("MainWindow", "export settings", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImport_settings.setText(QtGui.QApplication.translate("MainWindow", "import settings", None, QtGui.QApplication.UnicodeUTF8))
+
+
+class SmallEdit(QtGui.QTextEdit):
+    def __init__(self, *args, **kwargs):
+        super(SmallEdit, self).__init__(*args, **kwargs)
+
+    def sizeHint(self):
+        return (10,10)
 
 
 class SVGButton(QtGui.QPushButton):
