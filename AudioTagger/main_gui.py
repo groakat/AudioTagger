@@ -136,7 +136,7 @@ class Ui_MainWindow(object):
         self.pb_stop.setToolTip("Stop and reset sound")
 
         self.pb_seek = SVGButton(self.centralwidget)
-        self.pb_seek.load(self.iconFolder + '/fa-map-pin.svg')
+        self.pb_seek.load(self.iconFolder + '/fa-map-signs.svg')
         self.pb_seek.setToolTip("Seek")
 
         self.lbl_audio_position = QtGui.QLabel(self.centralwidget)
