@@ -12,7 +12,7 @@ Install miniconda (http://conda.pydata.org/miniconda.html). Then type in the ter
 
     conda config --add channels https://conda.binstar.org/groakat
     conda install audiotagger-dependencies
-    pip install -U git+https://github.com/groakat/AudioTagger.git
+    pip install -U https://github.com/groakat/AudioTagger/archive/master.zip
 
 Now you can start the `AudioTagger` by opening a terminal and simply typing
 
