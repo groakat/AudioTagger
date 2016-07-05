@@ -73,7 +73,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
     ],
-    scripts=[pjoin('bin', 'audioTagger')],
+    scripts=[pjoin('bin', 'AudioTagger')],
     cmdclass = {'install_scripts': my_install_scripts},
     package_data = {
         '': ['*.svg', '*.yaml', '*.zip', '*.ico', '*.bat']
