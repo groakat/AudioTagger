@@ -63,7 +63,8 @@ class AudioTagger(QtGui.QMainWindow):
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
         self.s4p = S4P.Sound4Python()
-        self.soundSec = 0
+        self.soundSec = 0.0
+        self.soundDurationSec = 0.0
         self.lastMarkerUpdate = None
         self.soundMarker = None
         self.seekingSound = False
@@ -583,7 +584,7 @@ class AudioTagger(QtGui.QMainWindow):
         if self.playing:
             self.stopSound()
 
-        self.soundSec = 0
+        self.soundSec = 0.0
         self.updateSoundMarker()
 
         self.loadSound(self.filelist[self.fileidx])
@@ -642,6 +643,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.specHeight = self.spec.shape[1]
         self.specWidth = self.spec.shape[0]
         self.configureElements()
+        self.update_info_viewer()
 
 
     def getListOfWavefiles(self, folder):
@@ -705,6 +707,7 @@ class AudioTagger(QtGui.QMainWindow):
         """
 
         sr, x = scipy.io.wavfile.read(filepath)
+        self.soundDurationSec = x.shape[0] / float(sr)
     
         ## Parameters
         nstep = int(sr * self.specNStepMod)
@@ -1248,7 +1251,10 @@ class AudioTagger(QtGui.QMainWindow):
     def update_info_viewer(self):
         s = ''
         # s += "<p><b>File:</b> {}</p>".format(self.filelist[self.fileidx])
-        s += "<p><b>Sound position:</b> {} sec</p>".format(self.soundSec)
+        curTime = "%5.3f"%self.soundSec
+        dur = "%5.3f"%self.soundDurationSec
+        s += "<p><b>Sound position:</b> {curTime}/{dur} sec</p>".format(curTime=curTime, dur=dur)
+
         c = self.count_annotations()
 
         if c:
