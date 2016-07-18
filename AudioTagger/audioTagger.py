@@ -83,7 +83,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.activeLabel = None
         self.specHeight = 360
-        self.specWidth = 6000
+        self.specWidth = 20000
         self.contentChanged = False
         self.isDeletingRects = False
         self.yscale = 1
