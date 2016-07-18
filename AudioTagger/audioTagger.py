@@ -721,7 +721,7 @@ class AudioTagger(QtGui.QMainWindow):
         x_wins_ham = np.hamming(x_wins.shape[0])[..., np.newaxis] * x_wins
     
         # compute fft
-        fft_mat = np.fft.fft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
+        fft_mat = np.fft.rfft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
     
         # log magnitude
         fft_mat_lm = np.log(np.abs(fft_mat))
