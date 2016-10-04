@@ -650,7 +650,7 @@ class AudioTagger(QtGui.QMainWindow):
         fileList = []
         for root, dirs, files in os.walk(folder):
             for f in sorted(files):
-                if f.endswith(".wav"):
+                if f.endswith('.wav') or f.endswith('.WAV'):
                     fileList += [os.path.join(root, f)]
                     
         return fileList
@@ -1121,7 +1121,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def createLabelFilename(self, fileAppendix="-sceneRect", ending='.json'):
         currentWavFilename = self.filelist[self.fileidx]
-        if currentWavFilename.endswith('.wav'):
+        if currentWavFilename.endswith('.wav') or currentWavFilename.endswith('.WAV'):
             filename = currentWavFilename[:-4]#Everything other than last 4 characters, i.e. .wav
         else:
             raise RuntimeError("Program only works for wav files")
