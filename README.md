@@ -8,7 +8,7 @@ A simple program to tag wav files by drawing bounding boxes on the spectrogram.
 
 On most systems it should work to
 
-Install miniconda (http://conda.pydata.org/miniconda.html). Then type in the terminal:
+Install Miniconda Python 2.7 distribution (http://conda.pydata.org/miniconda.html). Then type in the terminal:
 
     conda config --add channels https://conda.binstar.org/groakat
     conda install audiotagger-dependencies
