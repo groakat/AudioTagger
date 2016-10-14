@@ -73,6 +73,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundTimer.timeout.connect(self.updateSoundPosition)
         self.soundSpeed = 1
         self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
+        self.mouse_scene_y = None
 
         self.createOn = True
 
@@ -638,7 +639,7 @@ class AudioTagger(QtGui.QMainWindow):
         # self.setZoomBoundingBox()
 
     def updateSpecLabel(self):
-        self.spec = self.SpecGen(self.filelist[self.fileidx])
+        self.spec, self.freqs = self.SpecGen(self.filelist[self.fileidx])
         self.updateLabelWithSpectrogram(self.spec)
         self.specHeight = self.spec.shape[1]
         self.specWidth = self.spec.shape[0]
@@ -725,11 +726,13 @@ class AudioTagger(QtGui.QMainWindow):
     
         # compute fft
         fft_mat = np.fft.rfft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
+
+        freqs = np.fft.rfftfreq(nfft, 1.0 / sr)
     
         # log magnitude
         fft_mat_lm = np.log(np.abs(fft_mat))
     
-        return fft_mat_lm.T
+        return fft_mat_lm.T, freqs
 
     def updateLabelWithSpectrogram(self, spec):
         # clrSpec = np.uint8(plt.cm.binary(spec / np.max(spec)) * 255)#To change color, alter plt.cm.jet to plt.cm.#alternative code#
@@ -924,6 +927,10 @@ class AudioTagger(QtGui.QMainWindow):
         self.labelRects = []
         self.contentChanged = True
 
+
+    def show_freqency(self, y):
+        self.mouse_scene_y = y
+        self.update_info_viewer()
 
     ################### LABELS (SAVE/LOAD/NAVIGATION) #########################
 
@@ -1253,6 +1260,17 @@ class AudioTagger(QtGui.QMainWindow):
         # s += "<p><b>File:</b> {}</p>".format(self.filelist[self.fileidx])
         curTime = "%5.3f"%self.soundSec
         dur = "%5.3f"%self.soundDurationSec
+
+        if self.mouse_scene_y:
+            loc = len(self.freqs) - 1 - int(self.mouse_scene_y)
+            if loc < 0:
+                loc = 0
+
+            if loc > len(self.freqs) - 1:
+                loc = len(self.freqs) - 1
+
+            s += "<p><b>Mouse position:</b> {}Hz".format(self.freqs[loc])
+
         s += "<p><b>Sound position:</b> {curTime}/{dur} sec</p>".format(curTime=curTime, dur=dur)
 
         c = self.count_annotations()
@@ -1305,6 +1323,7 @@ class MouseFilterObj(QtCore.QObject):#And this one
             #     self.parent.closeSceneRectangle()
 
         if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
+            self.parent.show_freqency(int( event.scenePos().y()))
             if self.parent.isRectangleOpen:
                 if event.type() == QtCore.QEvent.GraphicsSceneMouseMove:
                     self.parent.resizeSceneRectangle(int(event.scenePos().x()), 
