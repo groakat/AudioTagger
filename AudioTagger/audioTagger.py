@@ -972,10 +972,10 @@ class AudioTagger(QtGui.QMainWindow):
             if not labelRect:
                 continue
 
-            r = [labelRect.rect().x(),
-                 labelRect.rect().y(),
-                 labelRect.rect().width(),
-                 labelRect.rect().height()]
+            r = [labelRect.sceneBoundingRect().x(),
+                 labelRect.sceneBoundingRect().y(),
+                 labelRect.sceneBoundingRect().width(),
+                 labelRect.sceneBoundingRect().height()]
             # rect = [r.x(), r.y(), r.width(), r.height()]
             c = self.rectClasses[labelRect]
 
@@ -1131,7 +1131,7 @@ class AudioTagger(QtGui.QMainWindow):
         return filename
 
     def getLabelTimeValue(self, labelRect):
-        return labelRect.rect().x()
+        return labelRect.sceneBoundingRect().x()
 
     def findNextLabelInTime(self, currentActiveLabel):
         nearest = None
