@@ -64,7 +64,7 @@ setup(
     author = "Peter Rennert",
     author_email = "p.rennert@cs.ucl.ac.uk",
     description = ("A simple program to tag wav files by drawing bounding boxes on the spectrogram."),
-    packages=find_packages(),
+    packages=find_packages() + ["icons"],
     #license = read('LICENSE.txt'),
     keywords = "audio",
     url = "https://github.com/groakat/AudioTagger",
@@ -73,6 +73,9 @@ setup(
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",
     ],
-    scripts=[pjoin('bin', 'audioTagger')],
-    cmdclass = {'install_scripts': my_install_scripts}
+    scripts=[pjoin('bin', 'AudioTagger')],
+    cmdclass = {'install_scripts': my_install_scripts},
+    package_data = {
+        '': ['*.svg', '*.yaml', '*.zip', '*.ico', '*.bat']
+    }
 )

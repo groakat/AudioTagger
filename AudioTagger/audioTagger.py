@@ -63,7 +63,8 @@ class AudioTagger(QtGui.QMainWindow):
         # self.filelist = self.getListOfWavefiles(self.basefolder)
 
         self.s4p = S4P.Sound4Python()
-        self.soundSec = 0
+        self.soundSec = 0.0
+        self.soundDurationSec = 0.0
         self.lastMarkerUpdate = None
         self.soundMarker = None
         self.seekingSound = False
@@ -83,7 +84,7 @@ class AudioTagger(QtGui.QMainWindow):
 
         self.activeLabel = None
         self.specHeight = 360
-        self.specWidth = 6000
+        self.specWidth = 20000
         self.contentChanged = False
         self.isDeletingRects = False
         self.yscale = 1
@@ -583,7 +584,7 @@ class AudioTagger(QtGui.QMainWindow):
         if self.playing:
             self.stopSound()
 
-        self.soundSec = 0
+        self.soundSec = 0.0
         self.updateSoundMarker()
 
         self.loadSound(self.filelist[self.fileidx])
@@ -642,13 +643,14 @@ class AudioTagger(QtGui.QMainWindow):
         self.specHeight = self.spec.shape[1]
         self.specWidth = self.spec.shape[0]
         self.configureElements()
+        self.update_info_viewer()
 
 
     def getListOfWavefiles(self, folder):
         fileList = []
         for root, dirs, files in os.walk(folder):
             for f in sorted(files):
-                if f.endswith(".wav"):
+                if f.endswith('.wav') or f.endswith('.WAV'):
                     fileList += [os.path.join(root, f)]
                     
         return fileList
@@ -705,6 +707,7 @@ class AudioTagger(QtGui.QMainWindow):
         """
 
         sr, x = scipy.io.wavfile.read(filepath)
+        self.soundDurationSec = x.shape[0] / float(sr)
     
         ## Parameters
         nstep = int(sr * self.specNStepMod)
@@ -721,7 +724,7 @@ class AudioTagger(QtGui.QMainWindow):
         x_wins_ham = np.hamming(x_wins.shape[0])[..., np.newaxis] * x_wins
     
         # compute fft
-        fft_mat = np.fft.fft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
+        fft_mat = np.fft.rfft(x_wins_ham, n=nfft, axis=0)[:(nfft/2), :]
     
         # log magnitude
         fft_mat_lm = np.log(np.abs(fft_mat))
@@ -1118,7 +1121,7 @@ class AudioTagger(QtGui.QMainWindow):
 
     def createLabelFilename(self, fileAppendix="-sceneRect", ending='.json'):
         currentWavFilename = self.filelist[self.fileidx]
-        if currentWavFilename.endswith('.wav'):
+        if currentWavFilename.endswith('.wav') or currentWavFilename.endswith('.WAV'):
             filename = currentWavFilename[:-4]#Everything other than last 4 characters, i.e. .wav
         else:
             raise RuntimeError("Program only works for wav files")
@@ -1248,7 +1251,10 @@ class AudioTagger(QtGui.QMainWindow):
     def update_info_viewer(self):
         s = ''
         # s += "<p><b>File:</b> {}</p>".format(self.filelist[self.fileidx])
-        s += "<p><b>Sound position:</b> {} sec</p>".format(self.soundSec)
+        curTime = "%5.3f"%self.soundSec
+        dur = "%5.3f"%self.soundDurationSec
+        s += "<p><b>Sound position:</b> {curTime}/{dur} sec</p>".format(curTime=curTime, dur=dur)
+
         c = self.count_annotations()
 
         if c:
