@@ -1268,8 +1268,10 @@ class AudioTagger(QtGui.QMainWindow):
 
             if loc > len(self.freqs) - 1:
                 loc = len(self.freqs) - 1
-
-            s += "<p><b>Mouse position:</b> {}Hz".format(self.freqs[loc])
+                
+            # convert the position into kHz taking into account freq division
+            freq_kHz = round(self.freqs[loc]/1000.0, 3) * (1.0 / self.soundSpeed)
+            s += "<p><b>Mouse position:</b> {}kHz".format(freq_kHz)
 
         s += "<p><b>Sound position:</b> {curTime}/{dur} sec</p>".format(curTime=curTime, dur=dur)
 
