@@ -72,7 +72,7 @@ class AudioTagger(QtGui.QMainWindow):
         self.soundTimer = QtCore.QTimer()
         self.soundTimer.timeout.connect(self.updateSoundPosition)
         self.soundSpeed = 1
-        self.soundSpeeds = [0.1, 0.2, 0.25, 0.5, 1, 2]
+        self.soundSpeeds = [0.1, 0.125, 0.2, 0.25, 0.5, 1, 2]
         self.mouse_scene_y = None
 
         self.createOn = True
